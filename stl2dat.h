@@ -1,3 +1,7 @@
+#include <string>
+#include <iostream>
+#include "ort.h"
+
 #define LIST_OF(cl) \
 class cl##_list \
 { \
@@ -31,7 +35,7 @@ class stl_prim
 {
 public:
 	stl_lin transfo;
-	CString name;
+	std::string name;
 	int color;
 	bool cw;	// for bfc
 
@@ -40,13 +44,13 @@ public:
 	{
 		color = col;
 	};
-	stl_prim(const CString & nm, int col, bool _cw = true)
+	stl_prim(const std::string & nm, int col, bool _cw = true)
 	{
 		name = nm;
 		color = col;
 		cw = _cw;
 	};
-	void write(ostream & os);
+	void write(std::ostream & os);
 };
 
 LIST_OF(stl_prim)
@@ -79,7 +83,7 @@ public:
 	virtual surf_type type() { return(t_surf); };
 
 	virtual bool compatible( stl_facet * fct, stl_facet * adj) = 0;
-	virtual void write( ostream & os);
+	virtual void write( std::ostream & os);
 	virtual void set_facet( stl_facet * fct);
 	virtual void calc_prim( stl_facet * facet, stl_file & stl);
 	virtual void clean(stl_facet * fct);
@@ -99,7 +103,7 @@ public:
 	stl_cylinder( const stl_v & od, const stl_v & vd, double radius, double height);
 	virtual surf_type type() { return(t_cylinder); };
 
-	virtual void write( ostream & os);
+	virtual void write( std::ostream & os);
 	virtual bool compatible( stl_facet * fct, stl_facet * adj);
 	virtual void calc_prim( stl_facet * facet, stl_file & stl);
 	virtual void clean(stl_facet * fct);
@@ -151,7 +155,7 @@ public:
 	virtual surf_type type() { return(t_plane); };
 
 	virtual bool compatible( stl_facet * fct, stl_facet *);
-	virtual void write( ostream & os);
+	virtual void write( std::ostream & os);
 	virtual void calc_curv( stl_file & stl);
 };
 
@@ -184,7 +188,7 @@ public:
 	stl_curv();
 
 	virtual bool compatible( stl_edge * edg, stl_edge * adj) = 0;
-	virtual void write( ostream & os);
+	virtual void write( std::ostream & os);
 	virtual void set_facet( stl_edge * edg);
 	virtual void calc_prim( stl_edge * facet, stl_file & stl);
 	virtual void clean(stl_edge * edg);
@@ -214,11 +218,11 @@ public:
 	double m_surface;
 	int precision;
 
-	CString ident();
+	std::string ident();
 	void dump();
 
 	stl_facet();
-	void write(ostream & os, int col3 = 16, int col4 = 16, int edgecolor = 24, bool printface = true, bool printedge = true);
+	void write(std::ostream & os, int col3 = 16, int col4 = 16, int edgecolor = 24, bool printface = true, bool printedge = true);
 	void facetplan( stl_v & oq, stl_v & wq);
 	void calculate_normal();
 	void clean();
@@ -270,8 +274,8 @@ public:
 	stl_v coord(int i, int face = 0);
 	stl_vertex * vertx(int i, int face = 0);
 	void set_coord(int i, int face, const stl_v & val);
-	void write(ostream & os, int col2 = 24, int col5 = 24);
-	CString ident();
+	void write(std::ostream & os, int col2 = 24, int col5 = 24);
+	std::string ident();
 	bool merge_adj();
 	int side(stl_facet * m_facet);
 	void reaffect(stl_facet * m_facet, stl_facet * repl_facet, int ve);
@@ -304,8 +308,8 @@ public:
 	void scan_edges(int nb_face);
 	void remove_vertex(stl_edge * ed_supr);
 
-    friend ostream & operator << ( 
-		ostream & s, 
+    friend std::ostream & operator << ( 
+		std::ostream & s, 
 		const	stl_vertex * v 
 	);
     /*-
@@ -318,13 +322,13 @@ LIST_OF(stl_vertex)
 
 class stl_file
 {
-	ifstream is;
-	CString desc;
-	CString name;
+	std::ifstream is;
+	std::string desc;
+	std::string name;
 public:
-	CString partname;
-	CString author;
-	CString out_filename;
+	std::string partname;
+	std::string author;
+	std::string out_filename;
 	int ok;
 	stl_v origin;
 	stl_lin transf;
@@ -354,7 +358,7 @@ public:
 	void optim_facets(int nb_face);
 	void primitives();
 	void calc_edge();
-	CString get_desc() 
+	std::string get_desc() 
 	{
 		return(desc);
 	};

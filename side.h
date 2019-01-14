@@ -5,6 +5,8 @@
 #ifndef __SIDE_H
 #define __SIDE_H
 
+#include "stdint.h"
+
 enum t_side {
     left_side,
     right_side
@@ -68,7 +70,7 @@ enum stl_locate
     Mon		=64
 };
 
-const i32 NotMon = ~Mon;
+const int32_t NotMon = ~Mon;
 
 #define IS_INSIDE(x)(((x) & NotMon) == 0)
 #define IS_LEFT(x)(((x) & Mleft) == Mleft)
@@ -79,7 +81,7 @@ const i32 NotMon = ~Mon;
 #define IS_TOP(x)(((x) & Mtop) == Mtop)
 #define IS_ON(x)(((x) & Mon) == Mon)
 #define SAME_SIDE(x,y)(((x) & (y) & NotMon) !=0)
-typedef i32 stl_locator;
+typedef int32_t stl_locator;
 
 
 

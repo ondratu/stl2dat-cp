@@ -2,7 +2,10 @@
 /* By user florian on Project /mtelc at 95/09/28 */
 #ifndef __C_SEA_H
 #define __C_SEA_H
-extern DLL_EXPORT
+
+#include "vect.h"
+
+extern
 long scalplan(
 	const	stl_v& p1,	 // First point defining the plane.
 	const	stl_v& p2,	 // Second point defining the plane.
@@ -23,7 +26,7 @@ long scalplan(
  */;
 
 
-extern DLL_EXPORT
+extern
 void Mpl_normalize(
 	 const	stl_v& op,	 //      Non normalized origin of the plane.
 	const	stl_v& vp,	//      Non normalized direction of the plane. 
@@ -39,7 +42,7 @@ void Mpl_normalize(
  ! precondition(vp.normalized())
  */;
 
-extern DLL_EXPORT
+extern
 void scal_pl_p_drdr(
 	const	stl_v &od1,	 // Point on the plane.
 	    const	stl_v &vd1,	// First direction on the plane. 
@@ -56,7 +59,7 @@ void scal_pl_p_drdr(
  ! precondition(!vd1.paral(vd2))
  */;
 
-extern DLL_EXPORT
+extern
 long scaldr(
 	const	stl_v& p1,	 // First point on the line.
 	const	stl_v& p2,	// Second point on the line. 
@@ -70,7 +73,7 @@ long scaldr(
  */;
 
 
-extern DLL_EXPORT
+extern
 int si_drdr_copl(
 	const	stl_v& od1,	// Origin of the first line. 
 	const	stl_v& vd1,	// Direction of the first line. 
@@ -88,7 +91,7 @@ int si_drdr_copl(
  */;
 
 
-extern DLL_EXPORT
+extern
 int s_dist_drdr(
 	const	stl_v& od1,	// Origin of the first line. 
 	const	stl_v& vd1,	// Direction of the first line. 
@@ -109,7 +112,7 @@ int s_dist_drdr(
  */;
 
 
-extern DLL_EXPORT long sidrdr(
+extern long sidrdr(
 	const	stl_v& od1,	// Origin of the first line. 
 	const	stl_v& vd1,	// Direction of the first line. 
 	    const	stl_v& od2,	// Origin of the Second line. 
@@ -130,7 +133,7 @@ extern DLL_EXPORT long sidrdr(
  */;
 
 
-extern DLL_EXPORT double spadr(
+extern double spadr(
 	const	stl_v& pt,	 // Point to be tested.
 	const	stl_v& od,	// Origin of the line. 
 	const	stl_v& vd	 // Direction of the line.
@@ -141,7 +144,7 @@ extern DLL_EXPORT double spadr(
  */;
 
 
-extern DLL_EXPORT double spaplan(
+extern double spaplan(
 	const	stl_v& pt,	// Point to be tested. 
 	const	stl_v& op,	// Origin of the plane. 
 	const	stl_v& vp	 // Direction of the plane.
@@ -154,7 +157,7 @@ extern DLL_EXPORT double spaplan(
  */;
 
 
-extern DLL_EXPORT bool sapptpl(
+extern bool sapptpl(
 	const	stl_v& pt,	// Point to be tested. 
 	const	stl_v& op,	// Origin of the plane. 
 	const	stl_v& vp	 // Direction of the plane.
@@ -165,7 +168,7 @@ extern DLL_EXPORT bool sapptpl(
  */;
 
 
-extern DLL_EXPORT
+extern
 bool sapptdr(
 	const	stl_v& pt,	 // Point to be tested.
 	const	stl_v& od,	// Origin of the line. 
@@ -177,7 +180,7 @@ bool sapptdr(
  */;
 
 
-extern DLL_EXPORT
+extern
 long sidrpl(
 	const	stl_v& od,	// Origin of the line. 
 	const	stl_v& vd,	 // Direction of the line.
@@ -193,7 +196,7 @@ long sidrpl(
  */;
 
 
-extern DLL_EXPORT long siplpl(
+extern long siplpl(
 	const	stl_v& op1,	// Origin of the first plane. 
 	const	stl_v& vp1,	 // Direction of the first plane.
 	const	stl_v& op2,	// Origin of the second plane. 
@@ -211,7 +214,7 @@ extern DLL_EXPORT long siplpl(
  ! precondition(vp2.normalized())
  */;
 
-extern DLL_EXPORT
+extern
 bool sadrpl(
 	const	stl_v& od,	// Origin of the line. 
 	const	stl_v& vd,	 // Direction of the line.
@@ -222,7 +225,7 @@ bool sadrpl(
  ! Use:		Test if a line is included in a given plane.	
  */;
 
-extern DLL_EXPORT
+extern
 double surface3pt(
 	const	stl_v& p1,
 	const	stl_v& p2,

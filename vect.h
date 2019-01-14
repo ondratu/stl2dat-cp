@@ -5,7 +5,6 @@
 #define __VECT_H
 
 #include "iostream"
-#include "std.h"
 #include "side.h"
 #include "real.h"
 
@@ -364,8 +363,8 @@ public:
      */
  
     
-    friend ostream& operator<<( 
-		ostream& s, 	// Ostream where v will be written.
+    friend std::ostream & operator << ( 
+		std::ostream& s, 	// Ostream where v will be written.
 	const	stl_c& c1 	// Point/vector to write in s.
 	); 
     /*-
@@ -394,6 +393,8 @@ void exchange(
  */
 
 
+class stl_lin;
+
 class stl_v
 /*-
  ! What:	3D point/vector.
@@ -402,8 +403,8 @@ class stl_v
 {
 friend class stl_lin;	// Class of 3d linear transformations.
 friend class stl_box;	// Class of 3 boxes.
-friend ostream& operator<<( 
-		ostream& s, 
+friend std::ostream& operator<<( 
+		std::ostream& s, 
 	const	stl_lin& l1 
 	) ;
 protected:
@@ -783,7 +784,7 @@ public:
  
     
     bool read( 
-	const	CString & l 	// a given string.
+	const	std::string & l 	// a given string.
 	); 
     /* 
     ! Use: 	Fill itself with a CString containing: < x1 x2 x3 >
@@ -791,22 +792,22 @@ public:
     */
     
     
-    CString write() const;
+    std::string write() const;
     /*-
      ! Use:	Write the Point/vector in a string and return it		
      ! Result:	"< x1 x2 x3 >"
      */
     
     
-    friend ostream& operator<<( 
-		ostream& s, 	// Ostream where v will be written.
+    friend std::ostream & operator <<( 
+		std::ostream& s, 	// Ostream where v will be written.
 	const	stl_v& v 	// Point/vector to write in s.
 	); 
     /*-
      ! Use:	Write a given point/vector in an ostream.		
      ! remark:	Format is < x1 , x2 , x3 >		
      */
-    friend istream & operator >> (istream & is, stl_v & v);
+    friend std::istream & operator >> (std::istream & is, stl_v & v);
 
     friend double determinant(	stl_v v[3] );
     friend double determinant4(	stl_v v[4] );

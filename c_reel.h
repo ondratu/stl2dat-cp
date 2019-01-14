@@ -1,18 +1,18 @@
-int_auto DLL_EXPORT void eps_change( 
+void eps_change(
 	const	double new_eps 
-	) 
+	)
 /*-
  ! Use: 	Change value of eps
  */
 ;
-int_auto DLL_EXPORT void eps_empile( 
+void eps_empile( 
 	const	double new_eps 
 	) 
 /*-
  ! Use: 	Change value of eps, and save old value on top of the stack.
  */
 ;
-int_auto DLL_EXPORT void eps_empile_rel( 
+void eps_empile_rel( 
 	const	double coef_eps 
 	) 
 /*-
@@ -20,47 +20,47 @@ int_auto DLL_EXPORT void eps_empile_rel(
  !		and save old value on top of the stack.
  */
 ;
-int_auto DLL_EXPORT void eps_depile()
+void eps_depile()
 /*-
  ! Use: 	Restore previous value of eps from the stack.
  */
 ;
-int_auto DLL_EXPORT double current_eps( ) 
+double current_eps( ) 
 /*-
  ! Use: 	Return the  current value of eps by.
  */
 ;
-int_auto DLL_EXPORT bool is_small(const double r)
+bool is_small(const double r)
 /*-
  ! Use: 	Return true if fabs(r) is lower than eps.
  */
 ;
-int_auto DLL_EXPORT bool equal(const double r1, const double r2)
+bool equal(const double r1, const double r2)
 /*-
  ! Use: 	Return true if fabs(r1 - r2) is lower than eps.
  */
  ;
-int_auto DLL_EXPORT long signe(const double r)
+long signe(const double r)
 /*-
  ! Use: 	Return 	 1 if r >= 0
  !			-1 if r < 0.
  */
 ;
-int_auto DLL_EXPORT double radian( 
+double radian( 
 	const	double t 	// angle in degrees.
 	) 
 /*-
  ! Use: 	Return t in radians.
  */
 ;
-int_auto DLL_EXPORT double degre( 
+double degre( 
 	const	double t 	// angle in radians
 	) 
 /*-
  ! Use: 	Return t in degrees.
  */
 ;
-int_auto DLL_EXPORT double angle( 
+double angle( 
 	const	double u,	// Adjacent side (cosinus)
 	const	double v	// Opposite side (sinus)
 	) 
@@ -70,25 +70,25 @@ int_auto DLL_EXPORT double angle(
  ! Result:	in radian, between [0 .. 2pi[
  */
 ;
-int_auto DLL_EXPORT double tang(const double r)
+double tang(const double r)
 /*-
  ! Use: 	Return tangent of r.
  ! 		Return v_erreur if (is_small(cos(r)).
 */
 ;
-int_auto DLL_EXPORT double arcsin(const double r)
+double arcsin(const double r)
 /*-
  ! Use: 	Return arc sinus of r.
  ! 		Return v_erreur if (fabs(r) >= 1).
 */
 ;
-int_auto DLL_EXPORT double arccos(const double r)
+double arccos(const double r)
 /*-
  ! Use: 	Return arc cosinus of r.
  ! 		Return v_erreur if (fabs(r) >= 1).
 */
 ;
-int_auto DLL_EXPORT double substitue( 
+double substitue( 
 	const	double y, 
 	const	double a, 
 	const	double b, 
@@ -98,7 +98,7 @@ int_auto DLL_EXPORT double substitue(
  !  Use: 	Solve the linear equation ax + by + c = 0  knowing a,b,c,y.
  */
 ;
-int_auto DLL_EXPORT short eq2d( 
+short eq2d( 
 	const	double a, 
 	const	double b, 
 	const	double c, 
@@ -119,7 +119,7 @@ int_auto DLL_EXPORT short eq2d(
  */
 
 ;
-int_auto DLL_EXPORT void exchange( 
+void exchange( 
 		double &x, 
 		double &y 
 	) 
@@ -127,7 +127,7 @@ int_auto DLL_EXPORT void exchange(
  ! Use: 	Exchange x and y.
  */
 ;
-int_auto DLL_EXPORT double Mmax( 
+double Mmax( 
 	const	double x, 
 	const	double y 
 	) 
@@ -135,7 +135,7 @@ int_auto DLL_EXPORT double Mmax(
  ! Use: 	Return maximum of x and y.
  */
 ;
-int_auto DLL_EXPORT double Mmin( 
+double Mmin( 
 	const	double x, 
 	const	double y 
 	) 
@@ -143,13 +143,13 @@ int_auto DLL_EXPORT double Mmin(
  ! Use: 	Return minimum of x and y.
  */
 ;
-int_auto DLL_EXPORT void roriente( 
+void roriente( 
 		double &x, 
 		double &y 
 	) 
 ;
 
-int_auto DLL_EXPORT double Mftrunc( 
+double Mftrunc( 
 	const	double r, 
  	const	double y 
 	) 
@@ -158,7 +158,7 @@ int_auto DLL_EXPORT double Mftrunc(
  !		result = r - i*y with result < r
  */
 ;
-int_auto DLL_EXPORT double Mfround( 
+double Mfround( 
 	const	double r, 
 	const	double y 
 	) 
@@ -166,43 +166,40 @@ int_auto DLL_EXPORT double Mfround(
  ! Use:		Round the real on the given precision.
  */
 ;
-int_auto DLL_EXPORT long round( 
-	const	double r 
-	) 
 /*-
  ! Use:		Equivalent of Pascal ROUND function.
  */
 ;
-int_auto DLL_EXPORT long r_round32(const double r)
+long r_round32(const double r)
 /*
  ! Use:		Portable round function (works on all machines).
  !		Prefer this function to Pascal ROUND function.
  */
 ;
-int_auto DLL_EXPORT long r_trunc32(const double r)
+long r_trunc32(const double r)
 /*
  ! Use:		Portable trunc function (works on all machines).
  !		Prefer this function to Pascal TRUNC function.
  */
 ;
-int_auto DLL_EXPORT short r_round16(double r)
+short r_round16(double r)
 /*
  ! Use:		Portable round function (works on all machines).
  !		Prefer this function to Pascal ROUND function.
  */
 ;
-int_auto DLL_EXPORT short r_trunc16(const double r)
+short r_trunc16(const double r)
 /*
  ! Use:		Portable trunc function (works on all machines).
  !		Prefer this function to Pascal TRUNC function.
  */
 ;
-int_auto DLL_EXPORT double Mfactorial( 
+double Mfactorial( 
 	const	long r
 	)
 ;
 
-int_auto DLL_EXPORT double Mpower( 
+double Mpower( 
 	const	double r1,
 	const	double r0,
 		double& r2

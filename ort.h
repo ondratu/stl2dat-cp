@@ -6,7 +6,6 @@
 
 #include "vect.h"
 
-
 /*-
  !   forward class declaration.   
  */
@@ -29,13 +28,11 @@ public:
     ! Constructors.
     !---------------
     */
-    DLL_EXPORT
     stl_lin() ;
     /*-
      ! Use:	Create the null transformation.
      */
 
-    DLL_EXPORT
     stl_lin( 
 	const	stl_v& v1 , 	// Transformation of stl_v_i.
 	const	stl_v& v2 , 	// Transformation of stl_v_j.
@@ -47,7 +44,6 @@ public:
      !		translative part).
      */
 
-    DLL_EXPORT
     stl_lin( 
 	const	stl_v& v1 	// Translative part.
 	); 
@@ -55,7 +51,6 @@ public:
      ! Use:	Create a translation.
      */
 
-    DLL_EXPORT
     stl_lin( 
 	const	double r	// Scale factor. 
 	); 
@@ -63,7 +58,6 @@ public:
      ! Use:	Create an uniform scaling around the origin.
      */
 
-    DLL_EXPORT
     stl_lin( 
 	const	double alpha, 	// Angle of rotation.
 	const	stl_v &axis, 	// Direction of axis of rotation.
@@ -74,7 +68,6 @@ public:
      ! Precond:	axis.normalized()
      */
 
-    DLL_EXPORT
     stl_lin( 
 	const	double r_x,	// Scale factor along X axis. 
 	const	double r_y,	// Scale factor along Y axis. 
@@ -85,7 +78,6 @@ public:
      !		the scales factors along the tree major axes.
      */
 
-    DLL_EXPORT
     stl_lin( 
 	const	stl_transf& r	// Transformation as a stl_transf. 
 	); 
@@ -93,7 +85,6 @@ public:
      ! Use:	Create the transformation knowed as a stl_transf one.
      */
 
-    DLL_EXPORT
     stl_lin( 
 	const	stl_lin& l_from, 	// Original coordinates system.
 	const	stl_lin& l_to 		// Mapped coordinates system.
@@ -106,7 +97,7 @@ public:
      ! Remark:	l_to.det() may  be equal to 0.0
      ! Postcond : this * l_from[i] == l_to[i]
      */
-    DECL_SELF_CONSTRUCTOR(stl_lin)
+    // DECL_SELF_CONSTRUCTOR(stl_lin)
 
    /*-
     ! Methods.
@@ -117,7 +108,6 @@ public:
      !  follow  methods for datas  interrogation.
      */
 
-    DLL_EXPORT
     void column_set( 
 	const	int i,const 	// Index of the column.
 		stl_v& v1 		// New value of the column.
@@ -126,7 +116,6 @@ public:
      ! Use:	Set a new value for a given vector column of the transformation.
      */
 
-    DLL_EXPORT
     void translation_set( 
 	const	stl_v& v1 	// New value for the translative part.
 	); 
@@ -134,7 +123,6 @@ public:
      ! Use:	Set a new value for the translative part of the transformation.
      */
 
-    DLL_EXPORT
     stl_v column( 
 	const	int i	// Index of the column. 
 	) const; 
@@ -142,7 +130,6 @@ public:
      ! Use:	Return the value of a column of the transformation.		
      */
 
-    DLL_EXPORT
     stl_v translation( ) const;
     /*-
      ! Use:	Return the translative part of the transformation.		
@@ -153,7 +140,6 @@ public:
      ! acessing to datas with  "this"  viewed as a coordinates system.
      */
 
-    DLL_EXPORT
      void x_axis_set( 
 	const	stl_v& v1	//  New value of X axis. 
 	); 
@@ -161,7 +147,6 @@ public:
      ! Use:	Set a new value to the X acis.
      */
 
-    DLL_EXPORT
     void y_axis_set( 
 	const	stl_v& v1 	// New value of Y axis.
 	); 
@@ -169,7 +154,6 @@ public:
      ! Use:	Set a new value to the Y acis.		
      */
 
-    DLL_EXPORT
      void z_axis_set( 
 	const	stl_v& v1	// New value of Z axis. 
 	); 
@@ -177,7 +161,6 @@ public:
      ! Use:	Set a new value to the Z acis.		
      */
 
-    DLL_EXPORT
      void origin_set( 
 	const	stl_v& v1 	// New value of origin.
 	); 
@@ -185,26 +168,22 @@ public:
      ! Use:	Set a new value to the origin.		
      */
 
-    DLL_EXPORT
      stl_v x_axis() const;
     /*-
      ! Use:	Return the X axis.		
      */
 
-    DLL_EXPORT
      stl_v y_axis() const;
     /*-
      ! Use:	Return the Y axis.		
 
      */
 
-    DLL_EXPORT
      stl_v z_axis() const;
     /*-
      ! Use:	Return the Z axis.		
      */
 
-    DLL_EXPORT
      stl_v origin() const;
     /*-
      ! Use:	Return the origin.		
@@ -227,35 +206,23 @@ public:
      !	stl_lin	*= stl_lin		: compose two stl_lin
      */
 
-    DLL_EXPORT
     bool operator == ( const stl_lin& l2) const;
-    DLL_EXPORT
     stl_lin operator + ( const stl_lin& l2)  const;
-    DLL_EXPORT
     stl_lin operator - ( const stl_lin& l2)  const;
-    DLL_EXPORT
     stl_lin operator * ( const double r)   const; 
-    DLL_EXPORT
     stl_v operator * ( const stl_v& v1)  const; 
-    DLL_EXPORT
     stl_lin operator * ( const stl_lin& l2)  const; 
-    DLL_EXPORT
     stl_lin& operator += ( const stl_lin& l2);
-    DLL_EXPORT
     stl_lin& operator -= ( const stl_lin& l2);
-    DLL_EXPORT
     stl_lin& operator *= ( const double r); 
-    DLL_EXPORT
     stl_lin& operator *= ( const stl_lin& l2); 
     
-    DLL_EXPORT
     double    det()        const;  
     /*-
      ! Use:	Calculate the determinant of the vectorial part of the
      !		transformation.		
      */
 
-    DLL_EXPORT
     double    trace()      const;
     /*-
      ! Use:	Calculate the trace of the vectorial part of the
@@ -264,41 +231,35 @@ public:
      !		part of the transformation.	
      */
 
-    DLL_EXPORT
     bool is_orthogonal_frame() const;
     /*-
      ! Use:	Test if the transformation viewed as a coordinates system is
      !		an orthogonal one.		
      */
 
-    DLL_EXPORT
     bool is_direct_orthogonal_frame() const;
     /*-
      ! Use:	Test if the transformation viewed as a coordinates system is
      !		an _direct orthogonal one.		
      */
 
-    DLL_EXPORT
     bool invertible() const;
     /*-
      ! Use:	Test if the transformation is invertible.		
      */
 
-    DLL_EXPORT
     stl_lin inverse() const;
     /*-
      ! Use:	Calculate the affine inverse of "this". 
      ! Precond:	invertible().                 
      */  
 
-    DLL_EXPORT
     stl_lin transpose()  const; 
     /*-
      ! Use:	Calculate the transpose of "this". 
      ! Warning:	Work on linear part only.                 
      */ 
 
-    DLL_EXPORT
     stl_lin change_basis( 
 	const	stl_lin& change 	// The coordinates system in which we want
 				// the corresponding stl_lin.
@@ -310,7 +271,6 @@ public:
      ! Precond:	change.invertible().            
      */  
                                         
-    DLL_EXPORT
     bool pivot( 
 		stl_v& sol 	// Out: the solution of the equation.
 	) ; 
@@ -321,7 +281,6 @@ public:
      ! Result:	true if a solution is found.
      */
 
-    DLL_EXPORT
     double quadratique( 
 	const	stl_v& w1, 	// Left vector.
 	const	stl_v& w2 	// Right vector.
@@ -331,7 +290,6 @@ public:
      ! Warning:	Work with linear part only
      */
     
-    DLL_EXPORT
     stl_v linear ( 
 	const	stl_v& v 	// vector to transform.
 	) const; 
@@ -339,13 +297,11 @@ public:
      ! Use:	Applies the linear part of this on v.
      */
 
-    DLL_EXPORT
     stl_lin linear() const;
     /*-
      ! Use:	Return the linear part of this.
      */
 
-    DLL_EXPORT
     long to_q( 
 		stl_transf &tr 	// The resulting transformation.
 	) const; 
@@ -358,9 +314,9 @@ public:
      ! Precond:	invertible()
      */
     
-    friend DLL_EXPORT
-    ostream& operator<<( 
-		ostream& s, 	// Ostream where l1 will be written.
+    friend
+    std::ostream& operator<<( 
+		std::ostream& s, 	// Ostream where l1 will be written.
 	const	stl_lin& l1 	// transformation to write in s.
 	); 
     /*-
@@ -389,7 +345,6 @@ private:
      */
 
 public:
-    DLL_EXPORT
     stl_quaternion( 
 	const	double r1,
 	const	double r2,
@@ -400,7 +355,6 @@ public:
      ! INTERNAL USE ONLY.
      */
 
-    DLL_EXPORT
     stl_quaternion( 
 	const	double r1, 
 	const	stl_v& v1
@@ -409,7 +363,6 @@ public:
      ! INTERNAL USE ONLY.
      */
 
-    DLL_EXPORT
     stl_quaternion( 
 	const	stl_quaternion& v1
 	); 
@@ -417,7 +370,6 @@ public:
      ! INTERNAL USE ONLY.
      */
 
-    DLL_EXPORT
     stl_quaternion& operator =( 
 	const	stl_quaternion& v1
 	); 
@@ -425,13 +377,11 @@ public:
      ! INTERNAL USE ONLY.
      */
 
-    DLL_EXPORT
     double real_part() const;	//!! a privatiser
     /*-
      ! INTERNAL USE ONLY.
      */
 
-    DLL_EXPORT
     stl_v  vector_part() const;	//!! a privatiser
     /*-
      ! INTERNAL USE ONLY.
@@ -459,8 +409,8 @@ private:
     friend long stl_lin::to_q( 
 		stl_transf & tr
 	) const; 
-    friend ostream& operator<<( 
-		ostream& s, 
+    friend std::ostream& operator<<( 
+		std::ostream& s, 
 	const	stl_quaternion& q1
 	); 
 };
@@ -479,7 +429,6 @@ public:
     ! Constructors.
     !---------------
     */
-    DLL_EXPORT
     stl_transf( 
 	const	stl_quaternion& q1,
 	const	stl_quaternion& q2, 
@@ -489,23 +438,19 @@ public:
      ! INTERNAL USE ONLY.
      */
 
-    DLL_EXPORT
     stl_transf();
     /*-
      ! Use:	Create  null transformation.
      */
 
-    DLL_EXPORT
     stl_transf( 
 	const	stl_transf& v1
 	); 
 
-    DLL_EXPORT
     stl_transf& operator =( 
 	const	stl_transf& v1
 	); 
 
-    DLL_EXPORT
     stl_transf( 
 	const	double alpha,	// Angle of the rotation. 
 	const	stl_v& axis, 	// Direction of the axis of  rotation.
@@ -516,7 +461,6 @@ public:
      ! Precond:	axis.normalized()
      */
 
-    DLL_EXPORT
     stl_transf( 
 	const	stl_v& vdp,	// Normal to the plane ( or null vector). 
 	const	stl_v& vop 	// Origin of the plane or the point of symetry.
@@ -527,7 +471,6 @@ public:
      ! Precond:   vdp.null() || vdp.normalized()
      */
 
-    DLL_EXPORT
     stl_transf( 
 	const	double r 	//  Scaling factor.
 	); 
@@ -535,7 +478,6 @@ public:
      ! Use:	Create a transformation as a uniform scaling.
      */
 
-    DLL_EXPORT
     stl_transf( 
 	const	stl_v& v 	// vector of translation.
 	); 
@@ -543,7 +485,6 @@ public:
      ! Use:	Create the transform. as a translation
      */     
     
-    DLL_EXPORT
     stl_transf( 
 	const	stl_v& op1,	// Origin of first  plane. 
 	const	stl_v& vp1,	// Direction of first  plane. 
@@ -562,7 +503,6 @@ public:
      ! 		  && ( this.linear( vp1*vp2) = vp1*vp2 )
      */
             
-    DLL_EXPORT
     stl_transf( 
 	const	stl_v& x1, 	// First  point.
 	const	stl_v& x2, 	// Normalized vectors  orthogonal to x3.
@@ -579,7 +519,6 @@ public:
      !		 && ( this.linear(x3) == x6).
      */
 
-    DLL_EXPORT
      stl_transf( 
 	const	double alpha1,	// Angle of rotation around X axis. 
 	const	double alpha2,	// Angle of rotation around Y axis. 
@@ -595,7 +534,6 @@ public:
      !----------
      */
 
-    DLL_EXPORT
      stl_quaternion quaternion( 
 	const	int i
 	) const; 					//!! a supprimer 
@@ -628,16 +566,11 @@ public:
      !	t_l	*= stl_transf		  : compose two stl_transf
      */
 
-    DLL_EXPORT
     bool operator == ( const stl_transf& q2) const;
-    DLL_EXPORT
     stl_transf operator * ( const stl_transf &q) const;
-    DLL_EXPORT
     stl_transf& operator *= ( const stl_transf &q);
-    DLL_EXPORT
     stl_v operator * ( const stl_v &v1) const;
     
-    DLL_EXPORT
     stl_v linear( 
 	const	stl_v& v1	// Vector to transform. 
 	) const; 
@@ -645,7 +578,6 @@ public:
      ! Use:	Transform a vector by the linear component of this.
      */
 
-    DLL_EXPORT
     stl_v scale( 
 	const	stl_v& v1	// Vector to transform. 
 	) const; 
@@ -654,72 +586,61 @@ public:
      !		of a transformation. 
      */
 
-    DLL_EXPORT
     stl_transf inverse( ) const;
     /*-
      ! Use:	Calculate the inverse transformation.
      ! Postcond:  a * a.inverse() == stl_q_id;
      */
 
-    DLL_EXPORT
     bool is_translation() const;
     /*-
      ! Use:	Return yes only if it's a pure translation.
      */
 
-    DLL_EXPORT
     bool is_rotation() const;
     /*-
      ! Use:	Return yes only if the linear part is a rotation
      !		( with eventual scaling and translation ).
      */
 
-    DLL_EXPORT
     bool is_plane_reflection() const;
     /*-
      ! Use:	Return yes only if the linear part is a plane reflexion
      !		( with eventual scaling and translation ).
      */
 
-    DLL_EXPORT
     bool is_point_symetry() const;
     /*-
      ! Use:	Return yes only if the linear part is a point symetry
      !		( with eventual scaling and translation ).
      */
 
-    DLL_EXPORT
     bool is_scaling() const;
     /*-
      ! Use:	Return yes if a scaling part is present.
      */
 
-    DLL_EXPORT
-    i16 sign() const;
+    int16_t sign() const;
     /*-
      ! Use:	Return the sign of the determinant.
      */
     
-    DLL_EXPORT
     double scale_factor() const;
     /*-
      ! Use:	Return the scale factor of the transformation.
      */
 
-    DLL_EXPORT
     stl_v translate_vector() const;
     /*-
      ! Use:	Return the translative part of the transformation. 		
      */
 
-    DLL_EXPORT
     double angle() const;
     /*-
      ! Use:	Return the angle of rotation part of the transformation.
      ! Precond:	is_rotation().
      */
 
-    DLL_EXPORT
     void angles_get( 
 		double angles[ 3]	// Out: the three angles. 
 	) const; 
@@ -729,7 +650,6 @@ public:
      ! Postcond:    -r_pi < angles[ 012] <= r_pi
      */
 
-    DLL_EXPORT
     stl_v axis() const;
     /*-
      ! Use:	Return the  direction of the axis for a rotation.
@@ -737,7 +657,6 @@ public:
      ! Precond: is_rotation() || is_plane_reflection()
      */
 
-    DLL_EXPORT
     stl_v center() const;
     /*-
      ! Use:	Return the center of a scaling or point symetry
@@ -747,7 +666,7 @@ public:
      !		is_rotation() || is_plane_reflection()
      */
 
-    friend DLL_EXPORT
+    friend
     long stl_lin::to_q( 
 		stl_transf & tr
 	) const; 
@@ -755,9 +674,9 @@ public:
      ! See also: comment in declaration of this method in class stl_lin above.	
      */
 
-    friend DLL_EXPORT
-    ostream& operator<<( 
-		ostream& s,	// Ostream where r1 will be written. 
+    friend
+    std::ostream& operator<<( 
+		std::ostream& s,	// Ostream where r1 will be written. 
 	const	stl_transf& r1 	// transformation to write in s.
 	); 
     /*-
@@ -771,10 +690,10 @@ public:
 /*-
  ! Some usefull constant.
  */
-extern USEDBYDLL const stl_quaternion stl_q_zero;	// Null quaternion.
-extern USEDBYDLL const stl_transf stl_r_id;		// Identity as a stl_transf.
-extern USEDBYDLL const stl_lin stl_l_zero;		// Null transformation.
-extern USEDBYDLL const stl_lin stl_l_id;		// Identity as a stl_lin.
+extern const stl_quaternion stl_q_zero;	// Null quaternion.
+extern const stl_transf stl_r_id;		// Identity as a stl_transf.
+extern const stl_lin stl_l_zero;		// Null transformation.
+extern const stl_lin stl_l_id;		// Identity as a stl_lin.
 
 #endif 
 

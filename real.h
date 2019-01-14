@@ -5,26 +5,13 @@
 #define __MREAL_H
 
 
-#ifdef SUN
-#include <stream.h>
 inline double sqr(double x) {return(x*x);}
-#endif
-
-#ifdef MS_TURBOC_V30
-inline double sqr(double x) {return(x*x);}
-#endif
-
-#ifdef WIN32
-inline double sqr(double x) {return(x*x);}
-#endif
-
 
 //!!typedef double t_t[2][3] ;           // transfo lin 2d complexe 
 
 //typedef double t_precision;
 #include <math.h>
 
-#ifdef WIN32
 inline double remainder( 
        		double x, 
 		double y 
@@ -33,7 +20,6 @@ inline double remainder(
     double fm = fmod(x, y);
     return ( (fm < 0.5 * y ) ? fm : fm - y);
 }
-#endif
 
 
 #define arctan(x) atan(x)

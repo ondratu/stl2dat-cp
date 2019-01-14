@@ -26,12 +26,13 @@
 //#define DEBUG
 //#endif
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "math.h"
 #include "fstream"
 #include "strstream"
 #include "iomanip"
-#include "io.h"
+//#include "io.h"
+#include "unistd.h"
 
 #include "vect.h"
 #include "ort.h"
@@ -39,6 +40,11 @@
 #include "c_sea.h"
 
 #include "stl2dat.h"
+#include <string.h>
+#include <stdio.h>
+#include <algorithm>
+
+using namespace std;
 
 static double ag_lim;
 static double ag_lim_q;
@@ -75,7 +81,7 @@ static bool nodebug;
 
 //#define DEBUG
 
-istream & operator >> (istream & is, CString & string)
+istream & operator >> (istream & is, string & string)
 {
 	char s[256];
 	if (is)
@@ -215,7 +221,7 @@ void stl_file::dump()
 
 bool stl_file::token(const char * token)
 {
-	CString s;
+	string s;
 	if (is)
 	{
 		is >> s;
@@ -256,7 +262,9 @@ bool stl_file::read_header()
 		{
 			is.get(header,80);
 			desc = header;
-			desc = desc.Trim();
+			desc.erase(0, desc.find_first_not_of(" \n\r\t"));
+			desc.erase(desc.find_last_not_of(" \n\r\t")+1);
+			//desc = desc. Trim();
 		}
 	}
 	else
@@ -268,7 +276,7 @@ bool stl_file::read_header()
 			header[i] =0;
 			i--;
 		}
-		desc = CString(header);
+		desc = string(header);
 	}
 	return(result);
 }
@@ -328,7 +336,7 @@ int stl_file::read_facet_text()
 	stl_v normal;
 	stl_v vertex[3];
 
-	CString tok;
+	string tok;
 	is >> tok;
 	if (tok == "endsolid")
 		return 1;
@@ -706,7 +714,7 @@ bool stl_facet::recalculate_precision()
 	bool result = false;
 	if (usage == 4 && !no_line4)
 	{
-		// On force la précision max pour tous les vertex
+		// On force la pr?cision max pour tous les vertex
 		for (int i = 0; i < 4; i++)
 			precision = max(vertex[i]->precision, precision);
 		for (int i = 0; i < 4; i++)
@@ -820,11 +828,11 @@ void stl_facet::write(ostream & os, int col3, int col4, int edgecolor, bool prin
 	}
 }
 
-CString stl_facet::ident()
+string stl_facet::ident()
 {
 	char buf[16];
-	sprintf_s(buf,"%d",nbr_facet);
-	return(CString(buf));
+	sprintf(buf,"%d",nbr_facet);
+	return(string(buf));
 }
 
 void stl_facet::calculate_normal()
@@ -934,17 +942,17 @@ void stl_edge::write(ostream & os, int col2, int col5){
 	}
 }
 
-CString stl_edge::ident()
+string stl_edge::ident()
 {
 	char buf[16];
-	sprintf_s(buf,"%d",nbr_edge);
-	CString a0 = "-";
-	CString a1 = "-";
+	sprintf(buf,"%d",nbr_edge);
+	string a0 = "-";
+	string a1 = "-";
 	if (adjacent[0])
 		a0 = adjacent[0]->ident();
 	if (adjacent[1])
 		a1 = adjacent[1]->ident();
-	return(CString("[") + CString(buf) + ":" + a0 + "," + a1 + "]");
+	return(string("[") + string(buf) + ":" + a0 + "," + a1 + "]");
 }
 
 
@@ -959,40 +967,51 @@ void stl_prim::write(ostream & os)
     }
 }
 
+std::string str_tolower(std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(), 
+                // static_cast<int(*)(int)>(std::tolower)         // wrong
+                // [](int c){ return std::tolower(c); }           // wrong
+                // [](char c){ return std::tolower(c); }          // wrong
+                   [](unsigned char c){ return std::tolower(c); } // correct
+                  );
+    return s;
+}
+
 void stl_file::write_dat(bool print_geom)
 {
 	eps_empile( 0.0001);
-	CString dat_name;
+	string dat_name;
 	if (ldr_out)
 		dat_name = out_filename;
 	else
 	{
 		dat_name = name;
-		CString extension;
+		string extension;
 		if (ldr_opt)
 			extension = ".ldr";
 		else
 			extension = ".dat";
-		dat_name.MakeLower();
-		if (dat_name.Find(".stl"))
-			dat_name.Replace(".stl",extension);
+		dat_name = str_tolower(dat_name);
+		size_t pos = dat_name.find(".stl");
+		if (pos != std::string::npos)
+			dat_name = dat_name.replace(pos, 4, extension);
 		else
 			dat_name += extension;
 	}
 	ofstream fout(dat_name);
 	fout << "0 " << partname << endl;
-	int f = max(dat_name.ReverseFind('/'),dat_name.ReverseFind('\\'));
+	int f = max(dat_name.rfind("/"),dat_name.rfind("\\"));
 	if (f > 0)
-		dat_name = dat_name.Mid(f+1);
+		dat_name = dat_name.substr(f+1);
 	fout << "0 Name: " << dat_name << endl;
 	fout << "0 Author: " << author << endl;
 	if (ldraw)
 	{
-	    if (name.Mid(0,2) == "s\\")
+	    if (name.substr(0,2) == "s\\")
 		fout << "0 !LDRAW_ORG Unofficial_Subpart" << endl;
-	    else if (name.Mid(0,2) == "p\\")
+	    else if (name.substr(0,2) == "p\\")
 		fout << "0 !LDRAW_ORG Unofficial_Primitive" << endl;
-	    else if (name.Mid(0,5) == "p\\48\\")
+	    else if (name.substr(0,5) == "p\\48\\")
 		fout << "0 !LDRAW_ORG Unofficial_48_Primitive" << endl;
 	    else
 		fout << "0 !LDRAW_ORG Unofficial_Part" << endl;
@@ -1370,7 +1389,7 @@ bool stl_facet::is_convex(bool trace)
 	double maxag;
 	calcul_angles( totag, minag, maxag);
 	if (trace)
-		cout << "(" << nbr_facet << ") tot=" << degre(totag) << "° min=" << degre(minag) << "° max=" << degre(maxag) << "°" << endl;
+		cout << "(" << nbr_facet << ") tot=" << degre(totag) << "? min=" << degre(minag) << "? max=" << degre(maxag) << "?" << endl;
 	if (equal(totag, 4*pi))
 	{
 		stl_v tmp = coords[0];
@@ -1379,7 +1398,7 @@ bool stl_facet::is_convex(bool trace)
 		coords[2] = tmp;
 		calcul_angles( totag, minag, maxag);
 		if (trace)
-			cout << "(" << nbr_facet << ") tot=" << degre(totag) << "° min=" << degre(minag) << "° max=" << degre(maxag) << "°" << endl;
+			cout << "(" << nbr_facet << ") tot=" << degre(totag) << "? min=" << degre(minag) << "? max=" << degre(maxag) << "?" << endl;
 	}
 	result = (equal(totag, 2*pi) && maxag < pi - ag_lim_q) || (equal(totag, 6*pi) && minag > pi + ag_lim_q);
 	return(result);
@@ -1746,7 +1765,7 @@ void stl_vertex::scan_edges()
 				ag_min = ag;
 				ed_found = ed;
 			}
-			cout << "  fct(" << ed->ident() << ") ag=" << degre(ag) << "°" << " ag_min=" << degre(ag_min) << "°" << endl;
+			cout << "  fct(" << ed->ident() << ") ag=" << degre(ag) << "?" << " ag_min=" << degre(ag_min) << "?" << endl;
 		}
 		cur = cur->next;
 	}
@@ -1777,7 +1796,7 @@ void stl_vertex::scan_edges()
 			ln_min = ln;
 			ed_found = ed;
 		}
-		//cout << "  fct(" << ed->ident() << ") ln=" << ln << "°" << " ln_min=" << ln_min << "°" << endl;
+		//cout << "  fct(" << ed->ident() << ") ln=" << ln << "?" << " ln_min=" << ln_min << "?" << endl;
 		cur = cur->next;
 	}
 //	if (ed_found && ln_min < 1 && ln_min > 0.01)
@@ -1807,7 +1826,7 @@ if (ed->adjacent[1]) nbr_f = ed->adjacent[1]->nbr_facet;
 		{
 			ed_found = ed;
 		}
-		//cout << "  fct(" << ed->ident() << ") ln=" << ln << "°" << " ln_min=" << ln_min << "°" << endl;
+		//cout << "  fct(" << ed->ident() << ") ln=" << ln << "?" << " ln_min=" << ln_min << "?" << endl;
 		cur = cur->next;
 	}
 	if (ed_found)
@@ -2210,7 +2229,7 @@ stl_cylinder * stl_facet::new_cylinder( stl_facet * fct2, const stl_v & op, cons
 		double ag = normal.angle(fct2->normal, v_ref);
 #ifdef DEBUG
 if (!nodebug)
-	cout << "angle(" << nbr_facet << "," << fct2->nbr_facet << ") = " << degre(ag) << "°" << endl;
+	cout << "angle(" << nbr_facet << "," << fct2->nbr_facet << ") = " << degre(ag) << "?" << endl;
 #endif
 		if (equal(ag, angle_cyl))
 		{
@@ -2773,17 +2792,17 @@ void stl_cylinder::calc_prim( stl_facet * facet, stl_file & stl)
 
 		while (tmp_count > 0)
 		{
-		    CString prefix("");
+		    string prefix("");
 		    int dec_count = 0;
 		    //if (tmp_count ==  4 || tmp_count ==  8 || tmp_count ==  12 || tmp_count ==  16)
 		    if (tmp_count >= 4 && tmp_count != 6 && tmp_count != 7)
 		    {
-				prefix = CString((char)('0' + tmp_count / 4)) + CString("-4");
+				prefix = string(1, (char)('0' + tmp_count / 4)) + string("-4");
 				dec_count = int( tmp_count / 4) * 4;
 		    }
 		    else if (tmp_count >= 2)
 		    {
-				prefix = CString((char)('0' + tmp_count / 2)) + CString("-8");
+				prefix = string(1, (char)('0' + tmp_count / 2)) + string("-8");
 				dec_count = int( tmp_count / 2) * 2;
 		    }
 		    else if (tmp_count == 1)
@@ -3137,7 +3156,7 @@ if (!nodebug)
 	double topo_eps = 0.001;
 	optim_eps = 0.001;
 
-	if (_access(argv[1], 4) == -1)
+	if (access(argv[1], 4) == -1)
 	{
 		cout << "File " << argv[1] << " does not exist." << endl;
 		exit(-1);
@@ -3145,8 +3164,8 @@ if (!nodebug)
 
 	stl_file stl(argv[1]);
 
-	CString attr;
-	CString arg_partname;
+	string attr;
+	string arg_partname;
 	int idx = 2;
 	while (idx < argc)
 	{

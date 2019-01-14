@@ -2,7 +2,7 @@
  *   TITLE: Class of vector/points 2 and 3d                             *
  =======================================================================*/
 #include "stdafx.h"
-#include "std.h"
+#include "std_base.h"
 #include "vect.h"
 #include "ctype.h"
 #include "c_reel.h"
@@ -24,14 +24,12 @@ const stl_v stl_v_j		= stl_v( 0.0, 1.0, 0.0 );
 const stl_v stl_v_k		= stl_v( 0.0, 0.0, 1.0 );
 const stl_v stl_v_one	= stl_v( 1.0, 1.0, 1.0 );
 
-DLL_EXPORT
 stl_c::stl_c ()
 {
     x[0] = 0.0;
     x[1] = 0.0;
 }
 
-DLL_EXPORT
 stl_c::stl_c ( 
 	const	double a, 
 	const	double b 
@@ -41,7 +39,6 @@ stl_c::stl_c (
   x[1] = b;
 }
 
-DLL_EXPORT
 stl_c::stl_c( 
 	const	double angle 
 	) 
@@ -50,7 +47,6 @@ stl_c::stl_c(
   x[1] = sin(angle);
 }
 
-DLL_EXPORT
 stl_c::stl_c ( 
 		double a[2] 
 	) 
@@ -59,7 +55,6 @@ stl_c::stl_c (
   x[1] = a[1];
 }
 
-DLL_EXPORT
 void stl_c::x_coord_set( 
 	const	double r 
 	) 
@@ -67,7 +62,6 @@ void stl_c::x_coord_set(
     x[0] = r;
 }
 
-DLL_EXPORT
 void stl_c::y_coord_set( 
 	const	double r 
 	) 
@@ -75,19 +69,16 @@ void stl_c::y_coord_set(
     x[1] = r;
 }
 
-DLL_EXPORT
 double stl_c::x_coord() const
 {
     return( x[0]);
 }
 
-DLL_EXPORT
 double stl_c::y_coord() const
 {
     return( x[1]);
 }
 
-DLL_EXPORT
 stl_v stl_c::to_v( 
 		int i_null 
 	) const 
@@ -104,7 +95,6 @@ stl_v stl_c::to_v(
     return (stl_v_zero);
 }
 
-DLL_EXPORT
 void stl_c::align( 
 	const	stl_c& ref, 
 	const	int coord 
@@ -115,7 +105,6 @@ void stl_c::align(
     x[coord] = ref.x[coord];
 }
 
-DLL_EXPORT
 stl_locator stl_c::locate( 
 	const	stl_c &pos, 
 	const	double acc 
@@ -140,14 +129,12 @@ stl_locator stl_c::locate(
     return (result);
 }
 
-DLL_EXPORT
 bool stl_c::operator ==( 
 	const	stl_c& c2 
 	) const 
 {
     return( (fabs( x[0]- c2.x[0]) + fabs( x[1] -c2.x[1]) < eps) );
 }
-DLL_EXPORT
 bool stl_c::operator !=( 
 	const	stl_c& c2 
 	) const 
@@ -155,7 +142,6 @@ bool stl_c::operator !=(
     return( !(fabs( x[0]- c2.x[0]) + fabs( x[1] -c2.x[1]) < eps) );
 }
 
-DLL_EXPORT
 stl_c stl_c::operator +( 
 	const	stl_c& c2 
 	)  const 
@@ -165,7 +151,6 @@ stl_c stl_c::operator +(
     return(result);
 }
 
-DLL_EXPORT
 stl_c stl_c::operator -( 
 	const	stl_c& c2 
 	)  const 
@@ -175,7 +160,6 @@ stl_c stl_c::operator -(
     return(result);
 }
 
-DLL_EXPORT
 stl_c stl_c::operator *( 
 	const	double r 
 	) const 
@@ -185,7 +169,6 @@ stl_c stl_c::operator *(
     return(result);
 }
 
-DLL_EXPORT
 stl_c stl_c::operator /( 
 	const	double r 
 	) const 
@@ -195,7 +178,6 @@ stl_c stl_c::operator /(
     return(result);
 }
 
-DLL_EXPORT
 stl_c stl_c::operator *( 
 	const	stl_c& c2 
 	)  const 
@@ -206,7 +188,6 @@ stl_c stl_c::operator *(
     return( result);
 }
 
-DLL_EXPORT
 stl_c& stl_c::operator +=( 
 	const	stl_c& c2 
 	) 
@@ -216,7 +197,6 @@ stl_c& stl_c::operator +=(
     return(*this);
 }
 
-DLL_EXPORT
 stl_c& stl_c::operator -=( 
 	const	stl_c& c2 
 	) 
@@ -226,7 +206,6 @@ stl_c& stl_c::operator -=(
     return(*this);
 }
 
-DLL_EXPORT
 stl_c& stl_c::operator *=( 
 	const	double r 
 	) 
@@ -236,7 +215,6 @@ stl_c& stl_c::operator *=(
     return(*this);
 }
 
-DLL_EXPORT
 stl_c& stl_c::operator /=( 
 	const	double r 
 	) 
@@ -246,7 +224,6 @@ stl_c& stl_c::operator /=(
     return(*this);
 }
 
-DLL_EXPORT
 stl_c stl_c::operator -() const
 {
     stl_c result;
@@ -255,25 +232,21 @@ stl_c stl_c::operator -() const
     return(result);
 }
 
-DLL_EXPORT
 bool stl_c::null() const
 {
     return( (fabs( x[0]) + fabs( x[1]) < eps) );
 }
 
-DLL_EXPORT
 bool stl_c::normalized() const
 {
     return( is_small( norm() - 1.0 ));
 }
 
-DLL_EXPORT
 double stl_c::norm() const
 {
     return( sqrt( sqr(x[0]) + sqr(x[1]) ));
 }
 
-DLL_EXPORT
 void stl_c::normalize()
 {
     precondition(!null());
@@ -281,7 +254,6 @@ void stl_c::normalize()
      *this /= norm();
 }
 
-DLL_EXPORT
 bool stl_c::paral( 
 	const	stl_c &c2 
 	) const 
@@ -289,7 +261,6 @@ bool stl_c::paral(
     return (is_small(det(c2)));
 }
 
-DLL_EXPORT
 stl_c stl_c::project( 
 	const	stl_c& axis 
 	) const 
@@ -298,14 +269,12 @@ stl_c stl_c::project(
     return( axis * ps(axis));
 }
 
-DLL_EXPORT
 stl_c stl_c::perp(const stl_c& axis) const
 {
     precondition(axis.normalized());
     return( *this - axis * ps(axis));
 }
 
-DLL_EXPORT
 void stl_c::decompose( 
 	const	stl_c &axis, 
 		stl_c &p_para, 
@@ -323,7 +292,6 @@ void stl_c::decompose(
     p_ort = c_loc - p_para;
 }
 
-DLL_EXPORT
 double stl_c::angle( 
 	const	stl_c &c2 
 	) const 
@@ -342,7 +310,6 @@ double stl_c::angle(
     return (pi);
 }
 
-DLL_EXPORT
 stl_locate stl_c::entre( 
 	const	stl_c& c1, 
 	const	stl_c& c2 
@@ -364,13 +331,11 @@ stl_locate stl_c::entre(
     return (Minside);
 }
 
-DLL_EXPORT
 stl_c stl_c::orth() const
 {
     return( stl_c( -x[1],x[0]));
 }
 
-DLL_EXPORT
 double stl_c::ps( 
  	const	stl_c& c2 
 	) const 
@@ -378,13 +343,11 @@ double stl_c::ps(
     return( x[0]*c2.x[0] + x[1]*c2.x[1]);
 }
 
-DLL_EXPORT
 double stl_c::distance( const stl_c& c2) const
 {
     return( (c2 - *this).norm() );
 }
 
-DLL_EXPORT
 stl_c stl_c::comblin( 
 	const	stl_c& c2, 
 	const	double r1, 
@@ -394,7 +357,6 @@ stl_c stl_c::comblin(
     return( (*this)*r1 + c2*r2);
 }
 
-DLL_EXPORT
 stl_c stl_c::milieu( 
 	const	stl_c& c2 
 	) const 
@@ -402,7 +364,6 @@ stl_c stl_c::milieu(
     return( ( *this + c2 ) / 2.0 );
 }
 
-DLL_EXPORT
 double stl_c::det( 
  	const	stl_c& c2 
 	) const 
@@ -410,41 +371,35 @@ double stl_c::det(
     return( x[0]*c2.x[1] - x[1]*c2.x[0]);
 }
 
-DLL_EXPORT
 double stl_c::angle() const
 {
     return( ::angle( x[0], x[1]));
 }
 
-DLL_EXPORT
 stl_c stl_c::tourne( const double a) const
 {
     return ( (*this) * stl_c( a));
 }
 
-DLL_EXPORT
 stl_c stl_c::cartesian_to_polar( ) const
 {
      return(stl_c(norm(), angle()));
 }
 
-DLL_EXPORT
 stl_c stl_c::polar_to_cartesian() const
 {
     return( stl_c( x[0] * cos( x[1]), x[0] * sin( x[1]) ));
 }
 
 
-DLL_EXPORT
-ostream& operator<<( 
-		ostream& s, 
+std::ostream& operator <<( 
+		std::ostream& s, 
 	const	stl_c& c1 
 	) 
 {
     return(s << '<' << c1.x[0] << ',' << c1.x[1] << '>');
 }
 
-DLL_EXPORT
 bool lexicaly_ordered( 
 	const	stl_c &c1, 
 	const	stl_c &c2 
@@ -463,7 +418,6 @@ bool lexicaly_ordered(
     return (true);
 }
 
-DLL_EXPORT
 void exchange( 
 		stl_c &c1, 
 		stl_c &c2 
@@ -475,7 +429,6 @@ void exchange(
 }
 
 
-DLL_EXPORT
 stl_v::stl_v()
 {
     x[0] = 0.0;
@@ -483,7 +436,6 @@ stl_v::stl_v()
     x[2] = 0.0;
 }
 
-DLL_EXPORT
 stl_v::stl_v( 
 	const	double a, 
 	const	double b, 
@@ -495,7 +447,6 @@ stl_v::stl_v(
     x[2] = c;
 }
 
-DLL_EXPORT
 stl_v::stl_v( 
 		double a[3] 
 	) 
@@ -505,7 +456,6 @@ stl_v::stl_v(
     x[2] = a[2];
 }
 
-DLL_EXPORT
 stl_v::stl_v( 
 	const	stl_c &a, 
 	const	double b 
@@ -515,7 +465,6 @@ stl_v::stl_v(
     x[2] = b;
 }
 
-DLL_EXPORT
 void stl_v::x_coord_set( 
 	const	double r 
 	) 
@@ -523,7 +472,6 @@ void stl_v::x_coord_set(
     x[0] = r;
 }
 
-DLL_EXPORT
 void stl_v::y_coord_set( 
 	const	double r 
 	) 
@@ -531,7 +479,6 @@ void stl_v::y_coord_set(
     x[1] = r;
 }
 
-DLL_EXPORT
 void stl_v::z_coord_set( 
 	const	double r 
 	) 
@@ -539,38 +486,32 @@ void stl_v::z_coord_set(
     x[2] = r;
 }
 
-DLL_EXPORT
 double stl_v::x_coord() const
 {
     return(x[ 0]);
 }
 
-DLL_EXPORT
 double stl_v::y_coord() const
 {
     return(x[ 1]);
 }
 
-DLL_EXPORT
 double stl_v::z_coord() const
 {
     return(x[ 2]);
 }
 
-DLL_EXPORT
 double stl_v::coord(int n) const
 {
     return(x[ n]);
 }
 
-DLL_EXPORT
 void stl_v::set_coord(int n, double r)
 {
 	if (n >= 0 && n <= 2)
 		x[ n] = r;
 }
 
-DLL_EXPORT
 stl_c stl_v::to_c( 
 		int i_null 
 	) const 
@@ -587,7 +528,6 @@ stl_c stl_v::to_c(
     return( stl_c());
 }
 
-DLL_EXPORT
 void stl_v::align( 
 	const	stl_v& ref, 
 	const	int coord 
@@ -598,7 +538,6 @@ void stl_v::align(
     x[coord] = ref.x[coord];
 }
 
-DLL_EXPORT
 stl_locator stl_v::locate( 
 	const	stl_v &pos, 
 	const	double acc 
@@ -628,14 +567,12 @@ stl_locator stl_v::locate(
     return (result);
 }
 
-DLL_EXPORT
 bool stl_v::operator == ( 
 	const	stl_v &v2 
 	) const 
 {
     return(fabs(x[0]-v2.x[0]) < eps && fabs(x[1]-v2.x[1]) < eps && fabs(x[2]-v2.x[2]) < eps);
 }
-DLL_EXPORT
 bool stl_v::operator != ( 
 	const	stl_v &v2 
 	) const 
@@ -643,7 +580,6 @@ bool stl_v::operator != (
     return(!(fabs(x[0]-v2.x[0]) < eps && fabs(x[1]-v2.x[1]) < eps && fabs(x[2]-v2.x[2]) < eps));
 }
 
-DLL_EXPORT
 stl_v stl_v::operator + ( 
 	const	stl_v& v2 
 	) const 
@@ -653,7 +589,6 @@ stl_v stl_v::operator + (
     return(result);
 }
 
-DLL_EXPORT
 stl_v stl_v::operator - ( 
 	const	stl_v& v2 
 	) const 
@@ -663,7 +598,6 @@ stl_v stl_v::operator - (
     return(result);
 }
 
-DLL_EXPORT
 stl_v stl_v::operator *( 
 	const	stl_v &v2 
 	) const 
@@ -675,7 +609,6 @@ stl_v stl_v::operator *(
     return (result);
 }
 
-DLL_EXPORT
 stl_v stl_v::operator * ( 
 	const	double r 
 	) const 
@@ -685,7 +618,6 @@ stl_v stl_v::operator * (
     return(result);
 }
 
-DLL_EXPORT
 stl_v stl_v::operator / ( 
 	const	double r 
 	) const 
@@ -695,7 +627,6 @@ stl_v stl_v::operator / (
     return(result);
 }
 
-DLL_EXPORT
 stl_v& stl_v::operator +=( 
 	const	stl_v& v2 
 	) 
@@ -706,7 +637,6 @@ stl_v& stl_v::operator +=(
     return(*this);
 }
 
-DLL_EXPORT
 stl_v& stl_v::operator -=( 
 	const	stl_v& v2 
 	) 
@@ -717,7 +647,6 @@ stl_v& stl_v::operator -=(
     return(*this);
 }
 
-DLL_EXPORT
 stl_v& stl_v::operator *=( 
 	const	double r 
 	) 
@@ -728,7 +657,6 @@ stl_v& stl_v::operator *=(
     return(*this);
 }
 
-DLL_EXPORT
 stl_v& stl_v::operator /=( 
 	const	double r 
 	) 
@@ -739,7 +667,6 @@ stl_v& stl_v::operator /=(
     return(*this);
 }
 
-DLL_EXPORT
 stl_v stl_v::operator -() const
 {
     stl_v result;
@@ -749,25 +676,21 @@ stl_v stl_v::operator -() const
     return(result);
 }
 
-DLL_EXPORT
 bool stl_v::null() const
 {
     return ((fabs(x[0]) + fabs(x[1]) + fabs(x[2]) < eps));
 }
 
-DLL_EXPORT
 bool stl_v::normalized() const
 {
     return (is_small(norm() - 1.0));
 }
 
-DLL_EXPORT
 double stl_v::norm() const
 {
     return (sqrt(sqr(x[0]) + sqr(x[1]) + sqr(x[2])));
 }
 
-DLL_EXPORT
 void stl_v::normalize()
 {
 	double n = norm();
@@ -805,7 +728,6 @@ stl_v stl_v::ftrunc(int precision)
 }
 
 
-DLL_EXPORT
 stl_v stl_v::project( 
 	const	stl_v& axis 
 	) const 
@@ -814,7 +736,6 @@ stl_v stl_v::project(
     return( axis * ps(axis));
 }
 
-DLL_EXPORT
 stl_v stl_v::perp( 
 	const	stl_v& axis 
 	) const 
@@ -823,7 +744,6 @@ stl_v stl_v::perp(
     return( *this - axis * ps(axis));
 }
 
-DLL_EXPORT
 void stl_v::decompose( 
 	const	stl_v& axis, 
 		stl_v &p_para, 
@@ -841,7 +761,6 @@ void stl_v::decompose(
     p_ort = v_loc - p_para;
 }
 
-DLL_EXPORT
 bool stl_v::paral( 
 	const	stl_v& v2 
 	) const 
@@ -858,7 +777,6 @@ bool stl_v::colinear(const stl_v & v1, const stl_v & v2)
 }
 
 
-DLL_EXPORT
 double stl_v::angle( 
 	const	stl_v &v2, 
 	const	stl_v &v_ref 
@@ -874,7 +792,6 @@ double stl_v::angle(
     return (pi);
 }
   
-DLL_EXPORT
 stl_locate stl_v::entre( 
 	const	stl_v& v1, 
 	const	stl_v& v2 
@@ -896,7 +813,6 @@ stl_locate stl_v::entre(
     return (Minside);
 }
 
-DLL_EXPORT
 stl_v stl_v::orth() const
 {
     precondition( !null());
@@ -913,7 +829,6 @@ stl_v stl_v::orth() const
     return(result);
 }
 
-DLL_EXPORT
 double stl_v::ps( 
 	const	stl_v& v2 
 	) const 
@@ -921,7 +836,6 @@ double stl_v::ps(
     return( x[0]*v2.x[0] + x[1]*v2.x[1] + x[2]*v2.x[2]);
 }
 
-DLL_EXPORT
 double stl_v::distance( 
  	const	stl_v& v2 
 	) const 
@@ -929,7 +843,6 @@ double stl_v::distance(
     return( (v2 - *this).norm() );
 }
 
-DLL_EXPORT
 stl_v stl_v::comblin( 
 	const	stl_v& v2 ,const 
 		double r1, 
@@ -939,13 +852,11 @@ stl_v stl_v::comblin(
     return( (*this)*r1 + v2*r2);
 }
 
-DLL_EXPORT
 stl_v stl_v::milieu( const stl_v& v2) const
 {
     return( ( *this + v2 ) / 2.0);
 }
 
-DLL_EXPORT
 double stl_v::det( 
 	const	stl_v &v2, 
 		int i_det 
@@ -959,7 +870,6 @@ double stl_v::det(
     return (x[i] * v2.x[j] - x[j] * v2.x[i]);
 }
 
-DLL_EXPORT
 double stl_v::mixte( 
 	const	stl_v& v2, 
 	const	stl_v& v3 
@@ -974,7 +884,6 @@ double stl_v::mixte(
    return(result);
 }
 
-DLL_EXPORT
 long stl_v::orientation() const
 {
     if (null())
@@ -994,15 +903,13 @@ long stl_v::orientation() const
     return (-1);
 }
 
-DLL_EXPORT
 long stl_v::orientation_for_compatibility_only() const
 {
     return (orientation());
 }
 
-DLL_EXPORT
 bool stl_v::read( 
-	const	CString & l 
+	const	std::string & l 
 	) 
 {
 /*
@@ -1044,10 +951,9 @@ bool stl_v::read(
     return (true);
 }
 
-DLL_EXPORT
-CString stl_v::write() const
+std::string stl_v::write() const
 {
-	return ' ';
+	return " ";
 /*
   return(CString("< ") + atos(x[0]) + " " +
                        atos(x[1]) + " " +
@@ -1061,9 +967,8 @@ double small0(double v)
 	return(is_small(v) ? 0 : v);
 }
 
-DLL_EXPORT
-ostream & operator << ( 
-		ostream & s, 
+std::ostream & operator << ( 
+		std::ostream & s, 
 	const	stl_v &v 
 	) 
 {
@@ -1073,7 +978,6 @@ ostream & operator << (
 	return(s <<  small0(v.x[0]) << " " << small0(v.x[1]) << " " << small0(v.x[2]));
 }
 
-DLL_EXPORT
 void exchange( 
 		stl_v &v1, 
 		stl_v &v2 
@@ -1084,7 +988,6 @@ void exchange(
 	v1  = tmp;
 }
 
-DLL_EXPORT
 double determinant(	stl_v v[3] )
 {
 //	cout << "determinant <" << v[0] << "> <" << v[1] << "> <" << v[2] << ">" << endl;
@@ -1093,7 +996,7 @@ double determinant(	stl_v v[3] )
            v[2].x[0] * (v[0].x[1] * v[1].x[2] - v[1].x[1] * v[0].x[2]));
 }
 
-istream & operator >> (istream & is, stl_v & v)
+std::istream & operator >> (std::istream & is, stl_v & v)
 {
 	is >> v.x[0];
 	is >> v.x[1];
@@ -1106,7 +1009,7 @@ istream & operator >> (istream & is, stl_v & v)
 typedef double ligne[DIM];
 typedef ligne matrice[DIM];
 
-//Cette fonction permet de supprimer la ligne et la colonne qui ne sert pas pour le calcul du déterminant.
+//Cette fonction permet de supprimer la ligne et la colonne qui ne sert pas pour le calcul du d?terminant.
 void copiesauflc (matrice source, matrice dest, int dim, int ligavirer)
 {
 	int l,c,ld = 0;
@@ -1120,7 +1023,7 @@ void copiesauflc (matrice source, matrice dest, int dim, int ligavirer)
 }
 
 
-//Dans cette fonction, il apparaît une récurrence permettant de calculer les différents déterminants formés par la matrice principale.
+//Dans cette fonction, il appara?t une r?currence permettant de calculer les diff?rents d?terminants form?s par la matrice principale.
 double determinant(matrice m, int dim)
 {
 	matrice sous_m;
@@ -1137,7 +1040,6 @@ double determinant(matrice m, int dim)
 	return(det);
 }
 
-DLL_EXPORT
 double determinant4(stl_v v[4] )
 {
 //	cout << "determinant <" << v[0] << "> <" << v[1] << "> <" << v[2] << ">" << endl;

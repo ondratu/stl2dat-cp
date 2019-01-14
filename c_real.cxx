@@ -1,7 +1,6 @@
 /*======================================================================*
  *   TITLE: Real                                                        *
  =======================================================================*/
-#include "stdafx.h"
 #include "std_base.h"
 #include "real.h"
 
@@ -23,9 +22,9 @@ static double eps_pile[ 10 ];
 static int eps_niv = 0;
 
 
-int_auto DLL_EXPORT void eps_change( 
+void eps_change(
 	const	double new_eps 
-	) 
+	)
 /*-
  ! Use: 	Change value of eps
  */
@@ -33,7 +32,7 @@ int_auto DLL_EXPORT void eps_change(
     eps = new_eps;
 }
 
-int_auto DLL_EXPORT void eps_empile( 
+void eps_empile( 
 	const	double new_eps 
 	) 
 /*-
@@ -48,7 +47,7 @@ int_auto DLL_EXPORT void eps_empile(
     eps = new_eps;
 }
 
-int_auto DLL_EXPORT void eps_empile_rel( 
+void eps_empile_rel( 
 	const	double coef_eps 
 	) 
 /*-
@@ -64,7 +63,7 @@ int_auto DLL_EXPORT void eps_empile_rel(
     eps = eps * coef_eps;
 }
 
-int_auto DLL_EXPORT void eps_depile()
+void eps_depile()
 /*-
  ! Use: 	Restore previous value of eps from the stack.
  */
@@ -75,7 +74,7 @@ int_auto DLL_EXPORT void eps_depile()
     eps = eps_pile[eps_niv];
 }
 
-int_auto DLL_EXPORT double current_eps( ) 
+double current_eps( ) 
 /*-
  ! Use: 	Return the  current value of eps by.
  */
@@ -86,7 +85,7 @@ int_auto DLL_EXPORT double current_eps( )
     return ( eps );
 }
 
-int_auto DLL_EXPORT t_Mbool is_small(const double r)
+t_Mbool is_small(const double r)
 /*-
  ! Use: 	Return true if fabs(r) is lower than eps.
  */
@@ -94,7 +93,7 @@ int_auto DLL_EXPORT t_Mbool is_small(const double r)
     return ((fabs(r) < eps));
 }
 
-int_auto DLL_EXPORT t_Mbool equal(const double r1, const double r2)
+t_Mbool equal(const double r1, const double r2)
 /*-
  ! Use: 	Return true if fabs(r1 - r2) is lower than eps.
  */
@@ -102,7 +101,7 @@ int_auto DLL_EXPORT t_Mbool equal(const double r1, const double r2)
     return (is_small(r2 - r1));
 }
 
-int_auto DLL_EXPORT long signe(const double r)
+long signe(const double r)
 /*-
  ! Use: 	Return 	 1 if r >= 0
  !			-1 if r < 0.
@@ -113,7 +112,7 @@ int_auto DLL_EXPORT long signe(const double r)
     return (-1);
 }
 
-int_auto DLL_EXPORT double radian( 
+double radian( 
 	const	double t 	// angle in degrees.
 	) 
 /*-
@@ -124,7 +123,7 @@ int_auto DLL_EXPORT double radian(
     return (t * ( pi / 180.0 ) );
 }
 
-int_auto DLL_EXPORT double degre( 
+double degre( 
 	const	double t 	// angle in radians
 	) 
 /*-
@@ -135,7 +134,7 @@ int_auto DLL_EXPORT double degre(
     return (t  * ( 180.0 / pi ));
 }
 
-int_auto DLL_EXPORT double angle( 
+double angle( 
 	const	double u,	// Adjacent side (cosinus)
 	const	double v	// Opposite side (sinus)
 	) 
@@ -159,7 +158,7 @@ int_auto DLL_EXPORT double angle(
     return (atan(v / u));
 }
 
-int_auto DLL_EXPORT double tang(const double r)
+double tang(const double r)
 /*-
  ! Use: 	Return tangent of r.
  ! 		Return v_erreur if (is_small(cos(r)).
@@ -171,7 +170,7 @@ int_auto DLL_EXPORT double tang(const double r)
     return (sin(r) / c);
 }
 
-int_auto DLL_EXPORT double arcsin(const double r)
+double arcsin(const double r)
 /*-
  ! Use: 	Return arc sinus of r.
  ! 		Return v_erreur if (fabs(r) >= 1).
@@ -187,7 +186,7 @@ int_auto DLL_EXPORT double arcsin(const double r)
     return (pi * 1.5);
 }
 
-int_auto DLL_EXPORT double arccos(const double r)
+double arccos(const double r)
 /*-
  ! Use: 	Return arc cosinus of r.
  ! 		Return v_erreur if (fabs(r) >= 1).
@@ -203,7 +202,7 @@ int_auto DLL_EXPORT double arccos(const double r)
     return (pi);
 }
 
-int_auto DLL_EXPORT double substitue( 
+double substitue( 
 	const	double y, 
 	const	double a, 
 	const	double b, 
@@ -218,7 +217,7 @@ int_auto DLL_EXPORT double substitue(
     return (-((y * b + c) / a));
 }
 
-int_auto DLL_EXPORT short eq2d( 
+short eq2d( 
 	const	double a, 
 	const	double b, 
 	const	double c, 
@@ -269,7 +268,7 @@ int_auto DLL_EXPORT short eq2d(
     return (2);
 }
 
-int_auto DLL_EXPORT void exchange( 
+void exchange( 
 		double &x, 
 		double &y 
 	) 
@@ -282,7 +281,7 @@ int_auto DLL_EXPORT void exchange(
     y = tp;
 }
 
-int_auto DLL_EXPORT double Mmax( 
+double Mmax( 
 	const	double x, 
 	const	double y 
 	) 
@@ -295,7 +294,7 @@ int_auto DLL_EXPORT double Mmax(
     return (y);
 }
 
-int_auto DLL_EXPORT double Mmin( 
+double Mmin( 
 	const	double x, 
 	const	double y 
 	) 
@@ -308,7 +307,7 @@ int_auto DLL_EXPORT double Mmin(
     return (x);
 }
 
-int_auto DLL_EXPORT void roriente( 
+void roriente( 
 		double &x, 
 		double &y 
 	) 
@@ -347,7 +346,7 @@ static double r_int16(const double r)
     return (r);
 }
 
-int_auto DLL_EXPORT double Mftrunc( 
+double Mftrunc( 
 	const	double r, 
  	const	double y 
 	) 
@@ -361,7 +360,7 @@ int_auto DLL_EXPORT double Mftrunc(
     return (( r > 0 ) ? r - fmod(r,y) : r - fmod(r,y) -y );
 }
 
-int_auto DLL_EXPORT double Mfround( 
+double Mfround( 
 	const	double r, 
 	const	double y 
 	) 
@@ -374,17 +373,7 @@ int_auto DLL_EXPORT double Mfround(
     return (r - remainder(r,y));
 }
 
-int_auto DLL_EXPORT long round( 
-	const	double r 
-	) 
-/*-
- ! Use:		Equivalent of Pascal ROUND function.
- */
-{
-    return ((long)Mfround( r_int32(r), 1.0));
-}
-
-int_auto DLL_EXPORT long r_round32(const double r)
+long r_round32(const double r)
 /*
  ! Use:		Portable round function (works on all machines).
  !		Prefer this function to Pascal ROUND function.
@@ -394,7 +383,7 @@ int_auto DLL_EXPORT long r_round32(const double r)
     return( (long)Mfround( r_int32(r), 1.0));
 }
 
-int_auto DLL_EXPORT long r_trunc32(const double r)
+long r_trunc32(const double r)
 /*
  ! Use:		Portable trunc function (works on all machines).
  !		Prefer this function to Pascal TRUNC function.
@@ -403,7 +392,7 @@ int_auto DLL_EXPORT long r_trunc32(const double r)
     return( (long)Mftrunc( r_int32(r), 1.0));
 }
 
-int_auto DLL_EXPORT short r_round16(double r)
+short r_round16(double r)
 /*
  ! Use:		Portable round function (works on all machines).
  !		Prefer this function to Pascal ROUND function.
@@ -412,7 +401,7 @@ int_auto DLL_EXPORT short r_round16(double r)
     return( (short)Mfround( r_int16(r), 1.0));
 }
 
-int_auto DLL_EXPORT short r_trunc16(const double r)
+short r_trunc16(const double r)
 /*
  ! Use:		Portable trunc function (works on all machines).
  !		Prefer this function to Pascal TRUNC function.
@@ -421,7 +410,7 @@ int_auto DLL_EXPORT short r_trunc16(const double r)
     return( (short)Mftrunc( r_int16(r), 1.0));
 }
 
-int_auto DLL_EXPORT double Mfactorial( 
+double Mfactorial( 
 	const	long r
 	)
 
@@ -437,7 +426,7 @@ int_auto DLL_EXPORT double Mfactorial(
 }
 
 
-int_auto DLL_EXPORT double Mpower( 
+double Mpower( 
 	const	double r1,
 	const	double r0,
 		double& r2

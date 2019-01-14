@@ -1,14 +1,13 @@
 /*======================================================================*
  *   TITLE: API  for Lines and Plane  Calculations.			*
  =======================================================================*/
-#include "stdafx.h"
-#include "std.h"
+//#include "stdafx.h"
+#include "std_base.h"
 #include "c_reel.h"
 #include "ort.h"
 
 //#include "xtrace.h"
 
-int_auto DLL_EXPORT 
 long scalplan( 
 	const	stl_v& p1, 	// First point defining the plane.
 	const	stl_v& p2, 	// Second point defining the plane.
@@ -48,7 +47,6 @@ long scalplan(
     return (1);
 }
 
-int_auto DLL_EXPORT 
 void Mpl_normalize( 
  	const	stl_v& op, 	//      Non normalized origin of the plane.
 	const	stl_v& vp,	//      Non normalized direction of the plane. 
@@ -69,7 +67,6 @@ void Mpl_normalize(
     opn = vpn * op.ps(vpn);
 }
 
-int_auto DLL_EXPORT 
 void scal_pl_p_drdr( 
 	const	stl_v &od1, 	// Point on the plane.
     	const	stl_v &vd1,	// First direction on the plane. 
@@ -95,7 +92,6 @@ void scal_pl_p_drdr(
     op = wq * od1.ps(wq);
 }
 
-int_auto DLL_EXPORT 
 long scaldr( 
 	const	stl_v& p1, 	// First point on the line.
 	const	stl_v& p2,	// Second point on the line. 
@@ -122,7 +118,6 @@ long scaldr(
     return (0);
 }
 
-int_auto DLL_EXPORT 
 int si_drdr_copl( 
 	const	stl_v& od1,	// Origin of the first line. 
 	const	stl_v& vd1,	// Direction of the first line. 
@@ -166,7 +161,6 @@ int si_drdr_copl(
     return (0);
 }
 
-int_auto DLL_EXPORT 
 int s_dist_drdr( 
 	const	stl_v& od1,	// Origin of the first line. 
 	const	stl_v& vd1,	// Direction of the first line. 
@@ -218,7 +212,7 @@ int s_dist_drdr(
     return (result);
 }
 
-int_auto DLL_EXPORT long sidrdr( 
+long sidrdr( 
 	const	stl_v& od1,	// Origin of the first line. 
 	const	stl_v& vd1,	// Direction of the first line. 
     	const	stl_v& od2,	// Origin of the Second line. 
@@ -267,7 +261,7 @@ int_auto DLL_EXPORT long sidrdr(
     return (result);
 }
 
-int_auto DLL_EXPORT double spadr( 
+double spadr( 
 	const	stl_v& pt, 	// Point to be tested.
 	const	stl_v& od,	// Origin of the line. 
 	const	stl_v& vd 	// Direction of the line.
@@ -281,7 +275,7 @@ int_auto DLL_EXPORT double spadr(
     return (((pt - od) * vd).norm());
 }
 
-int_auto DLL_EXPORT double spaplan( 
+double spaplan( 
 	const	stl_v& pt,	// Point to be tested. 
 	const	stl_v& op,	// Origin of the plane. 
 	const	stl_v& vp 	// Direction of the plane.
@@ -297,7 +291,7 @@ int_auto DLL_EXPORT double spaplan(
     return( vp.ps(pt - op));
 }
 
-int_auto DLL_EXPORT bool sapptpl( 
+bool sapptpl( 
 	const	stl_v& pt,	// Point to be tested. 
 	const	stl_v& op,	// Origin of the plane. 
 	const	stl_v& vp 	// Direction of the plane.
@@ -311,7 +305,6 @@ int_auto DLL_EXPORT bool sapptpl(
     return(  is_small( spaplan( pt, op, vp)));
 }
 
-int_auto DLL_EXPORT
 bool sapptdr( 
 	const	stl_v& pt, 	// Point to be tested.
 	const	stl_v& od,	// Origin of the line. 
@@ -326,7 +319,6 @@ bool sapptdr(
     return( ( vd*( pt - od)).null());
 }
 
-int_auto DLL_EXPORT
 long sidrpl( 
 	const	stl_v& od,	// Origin of the line. 
 	const	stl_v& vd, 	// Direction of the line.
@@ -367,7 +359,7 @@ long sidrpl(
     return (result);
 }
 
-int_auto DLL_EXPORT long siplpl( 
+long siplpl( 
 	const	stl_v& op1,	// Origin of the first plane. 
 	const	stl_v& vp1, 	// Direction of the first plane.
 	const	stl_v& op2,	// Origin of the second plane. 
@@ -413,7 +405,6 @@ int_auto DLL_EXPORT long siplpl(
     return( result);
 }
 
-int_auto DLL_EXPORT
 bool sadrpl( 
 	const	stl_v& od,	// Origin of the line. 
 	const	stl_v& vd, 	// Direction of the line.
@@ -429,7 +420,6 @@ bool sadrpl(
 }
 
 
-int_auto DLL_EXPORT
 double surface3pt(
 	const	stl_v& p1,
 	const	stl_v& p2,

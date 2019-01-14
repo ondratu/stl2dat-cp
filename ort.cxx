@@ -346,7 +346,7 @@
 
  *======================================================================*/
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "std_base.h"
 #include "c_reel.h"
 #include "ort.h"
@@ -463,8 +463,8 @@ void stl_quaternion::normalize( )
     }
 }
 
-ostream& operator<<( 
-		ostream& s, 
+std::ostream& operator<<( 
+		std::ostream& s, 
 	const	stl_quaternion& q1 
 	) 
 {
@@ -1105,8 +1105,8 @@ stl_v stl_transf::center() const
     return (result * sc);
 }
 
-ostream& operator<<( 
-		ostream& s, 
+std::ostream& operator<<( 
+		std::ostream& s, 
 	const	stl_transf& r1 
 	) 
 {
@@ -1688,8 +1688,8 @@ long stl_lin::to_q(
 
 double small0(double v);
 
-ostream& operator<<( 
-		ostream& s, 
+std::ostream& operator<<( 
+		std::ostream& s, 
 	const	stl_lin& l1 
 	) 
 {
