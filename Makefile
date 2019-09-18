@@ -8,3 +8,8 @@ all: stl2dat
 
 stl2dat: $(OBJ) $(wildcard *.h)
 	$(CXX) -o stl2dat $(OBJ)
+
+clean:
+	$(RM) $(OBJ)
+	$(RM) *.d
+	$(RM) stl2dat
