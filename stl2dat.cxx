@@ -3058,52 +3058,59 @@ int iget_arg(char* argv[], int idx)
 	return(result);
 }
 
+int usage()
+{
+	cout << "stl2dat v1.22" << endl;
+	cout << "Usage : stl2dat filename [] [name [author]]" << endl;
+	cout << "        -out filename : name of the output file" << endl;
+	cout << "        -o X Y Z : origin point" << endl;
+	cout << "        -m X Y Z A B C D E F G H I : transformation matrix" << endl;
+	cout << "        -a angle : angle is limit for optional edges" << endl;
+	cout << "        -aq angle : angle is limit for quadrangles" << endl;
+	cout << "        -at angle : angle is limit for remove unusefull facets" << endl;
+	cout << "        -eps value" << endl;
+	cout << "        -teps value : minimum distance for coincidence" << endl;
+	cout << "        -deps value : maximum determinant for coplanar quads" << endl;
+	cout << "        -oeps value : epsilon used for remove unusefull facets" << endl;
+	//		cout << "        -o3 : merge triangles" << endl;
+	cout << "        -o4 : no merge to quadrangles" << endl;
+	cout << "        -o5 : remove of internal (concave) optional edges" << endl;
+	cout << "        -op : no primitives calculation" << endl;
+	cout << "        -of : no remove of unusefull facets" << endl;
+	cout << "        -pp : print geometric surfaces" << endl;
+	cout << "        -cn : detect cylinder with normal difference" << endl;
+	cout << "        -oe : no creation of edges" << endl;
+	cout << "        -np : no plane geometric surfaces" << endl;
+	cout << "        -nc : no cylinder geometric surfaces" << endl;
+	cout << "        -nt : no tangent geometric surfaces" << endl;
+	cout << "        -c1 color : color of primitives" << endl;
+	cout << "        -c2 color : color of edges" << endl;
+	cout << "        -c3 color : color of triangles" << endl;
+	cout << "        -c4 color : color of quadrangles" << endl;
+	cout << "        -c5 color : color of optional edges" << endl;
+	cout << "        -no1 : no primitives" << endl;
+	cout << "        -no2 : no edges" << endl;
+	cout << "        -no3 : no triangles" << endl;
+	cout << "        -no4 : no quadrangles" << endl;
+	cout << "        -no5 : no optional edges" << endl;
+	cout << "        -cs : random color for surfaces" << endl;
+	cout << "        -cc : random color for adjacent to cylinder" << endl;
+	cout << "        -dat : produces a .dat file" << endl;
+	cout << "        -ldr : produces a .ldr file" << endl;
+	cout << "        -nobfc : no BFC instructions" << endl;
+	cout << "        -silent : does not display informations" << endl;
+	cout << "        -ldraw : does not add ldraw standard header" << endl;
+	cout << "        -raw : conversion without any optimisation or edge calculation" << endl;
+	cout << "        -h, --help : show this text and exit" << endl;
+	return 0;
+
+}
+
 int main(int argc, char* argv[])
 {
-	if (argc < 2)
+	if (argc < 2 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
 	{
-		cout << "stl2dat v1.22" << endl;
-		cout << "Usage : stl2dat filename [] [name [author]]" << endl;
-		cout << "        -out filename : name of the output file" << endl;
-		cout << "        -o X Y Z : origin point" << endl;
-		cout << "        -m X Y Z A B C D E F G H I : transformation matrix" << endl;
-		cout << "        -a angle : angle is limit for optional edges" << endl;
-		cout << "        -aq angle : angle is limit for quadrangles" << endl;
-		cout << "        -at angle : angle is limit for remove unusefull facets" << endl;
-		cout << "        -eps value" << endl;
-		cout << "        -teps value : minimum distance for coincidence" << endl;
-		cout << "        -deps value : maximum determinant for coplanar quads" << endl;
-		cout << "        -oeps value : epsilon used for remove unusefull facets" << endl;
-//		cout << "        -o3 : merge triangles" << endl;
-		cout << "        -o4 : no merge to quadrangles" << endl;
-		cout << "        -o5 : remove of internal (concave) optional edges" << endl;
-		cout << "        -op : no primitives calculation" << endl;
-		cout << "        -of : no remove of unusefull facets" << endl;
-		cout << "        -pp : print geometric surfaces" << endl;
-		cout << "        -cn : detect cylinder with normal difference" << endl;
-		cout << "        -oe : no creation of edges" << endl;
-		cout << "        -np : no plane geometric surfaces" << endl;
-		cout << "        -nc : no cylinder geometric surfaces" << endl;
-		cout << "        -nt : no tangent geometric surfaces" << endl;
-		cout << "        -c1 color : color of primitives" << endl;
-		cout << "        -c2 color : color of edges" << endl;
-		cout << "        -c3 color : color of triangles" << endl;
-		cout << "        -c4 color : color of quadrangles" << endl;
-		cout << "        -c5 color : color of optional edges" << endl;
-		cout << "        -no1 : no primitives" << endl;
-		cout << "        -no2 : no edges" << endl;
-		cout << "        -no3 : no triangles" << endl;
-		cout << "        -no4 : no quadrangles" << endl;
-		cout << "        -no5 : no optional edges" << endl;
-		cout << "        -cs : random color for surfaces" << endl;
-		cout << "        -cc : random color for adjacent to cylinder" << endl;
-		cout << "        -dat : produces a .dat file" << endl;
-		cout << "        -ldr : produces a .ldr file" << endl;
-		cout << "        -nobfc : no BFC instructions" << endl;
-		cout << "        -silent : does not display informations" << endl;
-		cout << "        -ldraw : does not add ldraw standard header" << endl;
-		cout << "        -raw : conversion without any optimisation or edge calculation" << endl;
-		return 0;
+		return usage();
 	}
 #ifdef DEBUG
 if (!nodebug)
@@ -3170,7 +3177,10 @@ if (!nodebug)
 	while (idx < argc)
 	{
 		attr = argv[idx];
-		if (attr == "-o")
+		if (attr == "-h" || attr == "--help"){
+			return usage();
+		}
+		else if (attr == "-o")
 		{
 			double c[3];
 			for (int i = 0; i < 3; i++)
