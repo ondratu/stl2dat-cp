@@ -29,7 +29,7 @@
 //#include "stdafx.h"
 #include "math.h"
 #include "fstream"
-#include "strstream"
+#include "sstream"
 #include "iomanip"
 //#include "io.h"
 #include "unistd.h"
@@ -3041,7 +3041,7 @@ void stl_file::calc_edge()
 double get_arg(char* argv[], int idx)
 {
 	double result = 0;
-	strstream s;
+	stringstream s;
 	s << argv[idx];
 	s >> result;
 	//sscanf(argv[idx],"%g",&result);
@@ -3051,7 +3051,7 @@ double get_arg(char* argv[], int idx)
 int iget_arg(char* argv[], int idx)
 {
 	int result = 0;
-	strstream s;
+	stringstream s;
 	s << argv[idx];
 	s >> result;
 	//sscanf(argv[idx],"%g",&result);
