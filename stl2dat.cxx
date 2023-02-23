@@ -1,6 +1,8 @@
-// 10/02/2011	1.22	Remove trace in nodebug mode.
-// 10/02/2011	1.21	Correct bug that stopped reading of file when very small facet was encounterd.
-// 10/02/2011	1.20	Add option -oeps used for remove unusefull facets, Debug : Use smaller eps when reading the facets
+// 06/07/2019	1.31	Correct file reading problems.
+// 13/04/2019	1.30	Adaptation to visual studio 2015. -scale, -scalemm, -berbose added. -silent by default.
+// 11/07/2011	1.22	Remove trace in nodebug mode.
+// 03/05/2011	1.21	Correct bug that stopped reading of file when very small facet was encounterd.
+// 03/05/2011	1.20	Add option -oeps used for remove unusefull facets, Debug : Use smaller eps when reading the facets
 // 31/01/2011	1.19	Add option -raw (conversion without any optimisation or edge calculation)
 // 19/01/2011	1.18	Add option -out (output file name)
 // 18/01/2011	1.17	Correct bug of Author and partname was wrong when -o option is present
@@ -46,6 +48,8 @@
 
 using namespace std;
 
+#define version "1.31"
+
 static double ag_lim;
 static double ag_lim_q;
 static double ag_lim_t;
@@ -73,7 +77,7 @@ static bool bfc;
 static bool silent;
 static bool ldraw;
 static bool stl_raw;
-static double optim_eps; 
+static double optim_eps;
 
 static bool noprim;
 static bool debug;
@@ -92,14 +96,14 @@ istream & operator >> (istream & is, string & string)
 	return is;
 }
 
-double ftrunc( double v, int precision);
+double ftrunc(double v, int precision);
 
 stl_v stl_edge::coord(int i, int face)
 {
-    if (!adjacent[face])
-	face = 1 - face;
-    if (!adjacent[face])
-	return stl_v_zero;
+	if (!adjacent[face])
+		face = 1 - face;
+	if (!adjacent[face])
+		return stl_v_zero;
 
 	int usage = adjacent[face]->usage;
 	if (usage == 0)
@@ -126,7 +130,7 @@ void stl_edge::set_coord(int i, int face, const stl_v & val)
 	}
 }
 
-bool stl_edge::colinear( const stl_v & vd)
+bool stl_edge::colinear(const stl_v & vd)
 {
 	return(coord(1) - coord(0)).paral(vd);
 }
@@ -136,7 +140,7 @@ stl_facet::stl_facet()
 	usage = 3;
 	color = 16;
 	surf = NULL;
-	for (int i=0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		edge[i] = 0;
 		vertex[i] = 0;
@@ -152,7 +156,7 @@ static long number_edge = 0;
 stl_edge::stl_edge()
 {
 	linetype = 2;
-	for (int i=0; i < 2; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		coords[i] = 0;
 		vertex[i] = 0;
@@ -175,16 +179,16 @@ stl_vertex::stl_vertex(const stl_v & _coords)
 	precision = 2;
 }
 
-void stl_vertex::add_edge( stl_edge * edge)
+void stl_vertex::add_edge(stl_edge * edge)
 {
-	edge_list = new stl_edge_list( edge, edge_list);
+	edge_list = new stl_edge_list(edge, edge_list);
 }
 
 
 
 stl_file::stl_file(const char * filename)
 {
-	is.open(filename, ios_base::in & ios::binary);
+	is.open(filename, std::ios::in | std::ios::binary);
 	ok = is.is_open();
 
 	origin = stl_v_zero;
@@ -242,8 +246,8 @@ bool stl_file::read_header()
 	char header[80];
 	memset(header, 0, 80);
 	//is.setmode(ios_base::binary);
-	is.read(header,80);
-//	is >> header;
+	is.read(header, 80);
+	//	is >> header;
 
 	int i = 0;
 	bool cr = false;
@@ -260,7 +264,7 @@ bool stl_file::read_header()
 		result = token("solid");
 		if (result)
 		{
-			is.get(header,80);
+			is.get(header, 80);
 			desc = header;
 			desc.erase(0, desc.find_first_not_of(" \n\r\t"));
 			desc.erase(desc.find_last_not_of(" \n\r\t")+1);
@@ -273,7 +277,7 @@ bool stl_file::read_header()
 		i = 79;
 		while (i >= 0 && header[i] == ' ')
 		{
-			header[i] =0;
+			header[i] = 0;
 			i--;
 		}
 		desc = string(header);
@@ -281,32 +285,38 @@ bool stl_file::read_header()
 	return(result);
 }
 
+int n = 1;
 bool stl_file::new_facet(const stl_v & normal, const stl_v vertex[])
 {
 	bool result = false;
 	stl_facet * facet = new stl_facet;
-	
+
 	facet->read_normal = normal;
 
 	bool identical = false;
 	for (int i = 0; i < 3; i++)
 	{
-//		facet->coords[i] = vertex[i] - origin;
+		//		facet->coords[i] = vertex[i] - origin;
 		facet->coords[i] = transf * vertex[i];
-/**
+		/**/
 		for (int j = 0; j < i; j++)
-//			if ((facet->coords[i] - facet->coords[j]).norm() < 0.001)
+			//			if ((facet->coords[i] - facet->coords[j]).norm() < 0.001)
 			if (facet->coords[i] == facet->coords[j])
 				identical = true;
-/**/
+		/**/
 	}
+	//cout << "coords " << n << ":" << facet->coords[0] << " ; " << facet->coords[1] << " ; " << facet->coords[2] << endl; n++;
 	if (!identical)
 	{
 		facet->calculate_normal();
-//		facet->normal = ((facet->coords[1] - facet->coords[0]) * 
-//						(facet->coords[2] - facet->coords[0])).normaliz();
-//		if (facet->normal != facet->read_normal)
-//			cout << "diff normal " << facet->normal - facet->read_normal << endl;
+		//		facet->normal = ((facet->coords[1] - facet->coords[0]) * 
+		//						(facet->coords[2] - facet->coords[0])).normaliz();
+		if (facet->normal != facet->read_normal)
+		{
+			cout << "diff normal " << facet->normal << " ; " << facet->read_normal << " ; " << facet->normal - facet->read_normal << endl;
+		}
+		if (facet->normal.null())
+			facet->normal = facet->read_normal;
 		if (!facet->normal.null())
 		{
 			facet->nbr_facet = nbr_facet;
@@ -321,7 +331,11 @@ bool stl_file::new_facet(const stl_v & normal, const stl_v vertex[])
 			result = true;
 		}
 		else
+		{
 			cout << "Error facet normal null !" << endl;
+			cout << facet->coords[0] << " " << facet->coords[1] << " " << facet->coords[2] << " " << facet->read_normal << " " << facet->normal << endl;
+			facet->dump();
+		}
 	}
 	return(result);
 }
@@ -359,18 +373,18 @@ int stl_file::read_facet_text()
 	}
 	if (result) result = token("endloop");
 	if (result) result = token("endfacet");
-	if (result) new_facet( normal, vertex);
+	if (result) new_facet(normal, vertex);
 	return(result ? 0 : -1);
 }
 
 stl_v read_v(ifstream & is)
 {
 	union {
-	float f[3];
-	char buf[12];
+		float f[3];
+		char buf[12];
 	} u;
-	is.read(u.buf,12);
-	return( stl_v(u.f[0], u.f[1], u.f[2]));
+	is.read(u.buf, 12);
+	return(stl_v(u.f[0], u.f[1], u.f[2]));
 }
 
 bool stl_file::read_facet_bin()
@@ -378,41 +392,46 @@ bool stl_file::read_facet_bin()
 	bool result;
 	stl_v normal;
 	stl_v vertex[3];
-	
+
 	normal = read_v(is);
 	for (int i = 0; i < 3; i++)
 		vertex[i] = read_v(is);
 
 	char dummy[2];
-	is.read(dummy,2);
-	result = new_facet( normal, vertex);
+	is.read(dummy, 2);
 	result = !is.eof();
+	if (result)
+		result = new_facet(normal, vertex);
 	return(result);
 }
 
 bool stl_file::read()
 {
-	bool result = read_header();
-	if (!result)
-		return(result);
-
+	bool result = true;
 	nbr_facet = 0;
 	if (stl_bin)
 	{
+		char header[80];
+		is.read(header, 80);
 		union {
-		long l;
-		char buf[4];
+			long l;
+			char buf[4];
 		} u;
-		is.read(u.buf,4);
+		is.read(u.buf, 4);
 		long face_number = u.l;
 		while (nbr_facet < face_number && result)
 		{
 			if (result = read_facet_bin())
-			nbr_facet++;
+				nbr_facet++;
 		}
+		if (nbr_facet < face_number)
+			cout << "face_number " << face_number << " face read " << nbr_facet << endl;
 	}
 	else
 	{
+		result = read_header();
+		if (!result)
+			return(result);
 		int err = 0;
 		bool done = false;
 		while (is && !done)
@@ -524,8 +543,8 @@ bool stl_facet::check()
 							{
 								result = false;
 								if (!silent)
-									cout << "check facet " << nbr_facet << " colinear vertices " << i << " " << j << " " << k<< endl;
-								is_convex(true);
+									cout << "check facet " << nbr_facet << " colinear vertices " << i << " " << j << " " << k << endl;
+								is_convex(!silent);
 							}
 
 						}
@@ -567,18 +586,18 @@ bool stl_edge::check()
 			cout << "check edge " << ident() << " : adjacent facet[1] deleted" << endl;
 	}
 
-	if (result && adjacent[1] && 
-		((coord(0) != coord(0,1) && coord(0) != coord(1,1)) ||
-		 (coord(1) != coord(1,1) && coord(1) != coord(0,1))))
+	if (result && adjacent[1] &&
+		((coord(0) != coord(0, 1) && coord(0) != coord(1, 1)) ||
+		(coord(1) != coord(1, 1) && coord(1) != coord(0, 1))))
 	{
 		result = false;
 		if (!silent)
 			cout << "check edge " << ident() << " : vertices do not correspond:"
-			 << "[" << coords[0] << "]" << coord(0) << " != " 
-			 << "[" << coords[1] << "]" << coord(0,1) << " & " 
-			 << "[" << (coords[0] + 1) % adjacent[0]->usage << "]" << coord(1) << " != " 
-			 << "[" << (coords[1] + 1) % adjacent[1]->usage << "]" << coord(1,1)
-			 << endl;
+			<< "[" << coords[0] << "]" << coord(0) << " != "
+			<< "[" << coords[1] << "]" << coord(0, 1) << " & "
+			<< "[" << (coords[0] + 1) % adjacent[0]->usage << "]" << coord(1) << " != "
+			<< "[" << (coords[1] + 1) % adjacent[1]->usage << "]" << coord(1, 1)
+			<< endl;
 	}
 	if (result && (coord(0) - coord(1)).norm() < optim_eps)
 	{
@@ -588,14 +607,14 @@ bool stl_edge::check()
 	}
 	if (result)
 		for (int i = 0; i < 2; i++)
-			if (adjacent[i] && adjacent[i]->adjacent[coords[i]] != adjacent[1-i])
+			if (adjacent[i] && adjacent[i]->adjacent[coords[i]] != adjacent[1 - i])
 			{
 				result = false;
 				if (!silent)
 				{
-					cout << "check edge : adjacent[" << 1-i << "] ";
-					if (adjacent[1-i])
-						cout << adjacent[1-i]->nbr_facet << " ";
+					cout << "check edge : adjacent[" << 1 - i << "] ";
+					if (adjacent[1 - i])
+						cout << adjacent[1 - i]->nbr_facet << " ";
 					cout << " != facet ";
 					if (adjacent[i] && adjacent[i]->adjacent[coords[i]])
 						cout << adjacent[i]->adjacent[coords[i]]->nbr_facet;
@@ -676,7 +695,7 @@ bool stl_file::check()
 								result = false;
 							}
 							else if ((cure->item->coord(0) == curf->item->coord(0) && cure->item->coord(1) == curf->item->coord(1)) ||
-								(cure->item->coord(0) == curf->item->coord(1) && cure->item->coord(1) == curf->item->coord(0)) )
+								(cure->item->coord(0) == curf->item->coord(1) && cure->item->coord(1) == curf->item->coord(0)))
 							{
 								if (!silent)
 									cout << "check : same edge " << cure->item->ident() << " and " << curf->item->ident() << endl;
@@ -706,7 +725,7 @@ static int cur_rand_col = 0;
 int random_color()
 {
 	cur_rand_col = (cur_rand_col + 1) % 16;
-	return( cur_rand_col);
+	return(cur_rand_col);
 }
 
 bool stl_facet::recalculate_precision()
@@ -727,15 +746,15 @@ bool stl_facet::recalculate_precision()
 		}
 		int face = 0;
 		if (!adjacent[face])
-		    face = 1 - face;
+			face = 1 - face;
 		if (adjacent[face])
 		{
-		    double det = fabs(adjacent[face]->determinant());
-		    if (det > determinant_eps && precision < 8)
-		    {
-			    precision++;
-			    result = recalculate_precision();
-		    }
+			double det = fabs(adjacent[face]->determinant());
+			if (det > determinant_eps && precision < 8)
+			{
+				precision++;
+				result = recalculate_precision();
+			}
 		}
 	}
 	return(result);
@@ -746,18 +765,18 @@ void stl_facet::write(ostream & os, int col3, int col4, int edgecolor, bool prin
 	if (!printed)
 	{
 		printed = true;
-		switch(usage)
+		switch (usage)
 		{
-/*
-		case 2:
-			os << setprecision(5);
-			if (printedge)
-				os << "2 " << edgecolor << " " << coords[0] << " " << coords[1] << endl;
-			break;
-*/
+			/*
+					case 2:
+						os << setprecision(5);
+						if (printedge)
+							os << "2 " << edgecolor << " " << coords[0] << " " << coords[1] << endl;
+						break;
+			*/
 		case 3:
-		    if (!no_line3)
-		    {
+			if (!no_line3)
+			{
 				if (debug)
 					os << "0 facet " << nbr_facet << " " << normal /*<< " " << read_normal*/ << " " << surface3pt(coords[0], coords[1], coords[2]) << endl;
 				os << setprecision(7);
@@ -783,27 +802,27 @@ void stl_facet::write(ostream & os, int col3, int col4, int edgecolor, bool prin
 						os << "2 " << edgecolor << " " << vertex[2] << " " << vertex[0] << endl;
 					}
 				}
-		    }
-		    break;
+			}
+			break;
 		case 4:
-		    if (!no_line4)
-				{
+			if (!no_line4)
+			{
 				if (debug)
 					os << "0 facet " << nbr_facet << " " << normal /*<< " " << read_normal*/ << endl;
 				os << setprecision(7);
 				cout << setprecision(7);
 				if (printface)
 				{
-//					int tmpcol = col4;
-//					double d = determinant(-1);
-//if (fabs(d) > determinant_eps)
-//					if (d != 0)
-//					{
-//	tmpcol = 4;
-//cout << "4 " << 4 << " " << vertex[0] << " " << vertex[1] << " " << vertex[2] << " " << vertex[3] << " det=" << d << endl;
-//					}
+					//					int tmpcol = col4;
+					//					double d = determinant(-1);
+					//if (fabs(d) > determinant_eps)
+					//					if (d != 0)
+					//					{
+					//	tmpcol = 4;
+					//cout << "4 " << 4 << " " << vertex[0] << " " << vertex[1] << " " << vertex[2] << " " << vertex[3] << " det=" << d << endl;
+					//					}
 					os << "4 " << col4 << " " << vertex[0] << " " << vertex[1] << " " << vertex[2] << " " << vertex[3] << endl;
-//					for (int i=0;i<4;vertex[i++]->precision=4);os << "4 " << col4 << " " << vertex[0] << " " << vertex[1] << " " << vertex[2] << " " << vertex[3] << endl << "0 // (3)" << determinant(3) << " (4)" << determinant(4) << " (5)" << determinant(5) << endl;
+					//					for (int i=0;i<4;vertex[i++]->precision=4);os << "4 " << col4 << " " << vertex[0] << " " << vertex[1] << " " << vertex[2] << " " << vertex[3] << endl << "0 // (3)" << determinant(3) << " (4)" << determinant(4) << " (5)" << determinant(5) << endl;
 				}
 				if (!printedge)
 				{
@@ -812,15 +831,15 @@ void stl_facet::write(ostream & os, int col3, int col4, int edgecolor, bool prin
 					os << "2 " << edgecolor << " " << vertex[2] << " " << vertex[3] << endl;
 					os << "2 " << edgecolor << " " << vertex[3] << " " << vertex[0] << endl;
 				}
-		    }
-		    break;
-/*
-		case 5:
-			os << setprecision(5);
-			if (printedge)
-				os << "5 " << edgecolor << " " << coords[0] << " " << coords[1] << " " << coords[2] << " " << coords[3] << endl;
+			}
 			break;
-*/
+			/*
+					case 5:
+						os << setprecision(5);
+						if (printedge)
+							os << "5 " << edgecolor << " " << coords[0] << " " << coords[1] << " " << coords[2] << " " << coords[3] << endl;
+						break;
+			*/
 		}
 		for (int i = 0; i < usage; i++)
 			if (edge[i])
@@ -831,14 +850,14 @@ void stl_facet::write(ostream & os, int col3, int col4, int edgecolor, bool prin
 string stl_facet::ident()
 {
 	char buf[16];
-	sprintf(buf,"%d",nbr_facet);
+	sprintf(buf, "%d", nbr_facet);
 	return(string(buf));
 }
 
 void stl_facet::calculate_normal()
 {
-	normal = ((coords[1] - coords[0]) * 
-			  (coords[2] - coords[0])).normaliz();
+	normal = ((coords[1] - coords[0]) *
+		(coords[2] - coords[0])).normaliz();
 }
 
 void stl_facet::dump()
@@ -849,16 +868,16 @@ void stl_facet::dump()
 		cout << "deleted" << endl;
 		return;
 	}
-	for (int i = 0 ; i < usage ; i++)
+	for (int i = 0; i < usage; i++)
 		if (adjacent[i])
 			cout << adjacent[i]->ident() << " ";
 		else
 			cout << ". ";
 	cout << "  \t[ ";
-	for (int i = 0 ; i < usage ; i++)
+	for (int i = 0; i < usage; i++)
 		cout << edge[i]->nbr_edge << " ";
 	cout << "]\t";
-	for (int i = 0 ; i < usage ; i++)
+	for (int i = 0; i < usage; i++)
 		cout << "<" << coords[i] << "> ";
 	cout << endl;
 }
@@ -871,10 +890,10 @@ void stl_edge::dump()
 		cout << "deleted" << endl;
 		return;
 	}
-	for (int i = 0 ; i < 2 ; i++)
+	for (int i = 0; i < 2; i++)
 		cout << coords[i] << " ";
 	cout << "  ";
-	for (int i = 0 ; i < 2 ; i++)
+	for (int i = 0; i < 2; i++)
 		cout << "<" << vertex[i]->coords << ">  ";
 	cout << endl;
 }
@@ -898,17 +917,17 @@ void stl_vertex::dump()
 
 double small0(double v);
 
-ostream & operator << ( 
-		ostream & s, 
-	const	stl_vertex * v 
-	) 
+ostream & operator << (
+	ostream & s,
+	const	stl_vertex * v
+	)
 {
 	if (v)
 	{
-		return (s << 
-			small0(ftrunc(v->coords.x_coord(),-v->precision)) << " " <<
-			small0(ftrunc(v->coords.y_coord(),-v->precision)) << " " <<
-			small0(ftrunc(v->coords.z_coord(),-v->precision)) );
+		return (s <<
+			small0(ftrunc(v->coords.x_coord(), -v->precision)) << " " <<
+			small0(ftrunc(v->coords.y_coord(), -v->precision)) << " " <<
+			small0(ftrunc(v->coords.z_coord(), -v->precision)));
 	}
 	else
 	{
@@ -916,27 +935,27 @@ ostream & operator << (
 	}
 }
 
-void stl_edge::write(ostream & os, int col2, int col5){
+void stl_edge::write(ostream & os, int col2, int col5) {
 	if (!printed)
 	{
-		switch(linetype)
+		switch (linetype)
 		{
 		case 2:
-		    if (!no_line2)
-		    {
-			os << setprecision(7);
-//			os << "2 " << col2 << " " << coord(0) << " " << coord(1) << endl;
-			os << "2 " << color << " " << vertx(0) << " " << vertx(1) << endl;
-		    }
-		    break;
+			if (!no_line2)
+			{
+				os << setprecision(7);
+				//			os << "2 " << col2 << " " << coord(0) << " " << coord(1) << endl;
+				os << "2 " << color << " " << vertx(0) << " " << vertx(1) << endl;
+			}
+			break;
 		case 5:
-		    if (!no_line5)
-		    {
-			os << setprecision(7);
-//			os << "5 " << col5 << " " << coord(0) << " " << coord(1) << " " << coord(2) << " " << coord(2,1) << endl;
-			os << "5 " << color << " " << vertx(0) << " " << vertx(1) << " " << vertx(2) << " " << vertx(2,1) << endl;
-		    }
-		    break;
+			if (!no_line5)
+			{
+				os << setprecision(7);
+				//			os << "5 " << col5 << " " << coord(0) << " " << coord(1) << " " << coord(2) << " " << coord(2,1) << endl;
+				os << "5 " << color << " " << vertx(0) << " " << vertx(1) << " " << vertx(2) << " " << vertx(2, 1) << endl;
+			}
+			break;
 		}
 		printed = true;
 	}
@@ -945,7 +964,7 @@ void stl_edge::write(ostream & os, int col2, int col5){
 string stl_edge::ident()
 {
 	char buf[16];
-	sprintf(buf,"%d",nbr_edge);
+	sprintf(buf, "%d", nbr_edge);
 	string a0 = "-";
 	string a1 = "-";
 	if (adjacent[0])
@@ -958,13 +977,13 @@ string stl_edge::ident()
 
 void stl_prim::write(ostream & os)
 {
-    if (!no_line1)
-    {
+	if (!no_line1)
+	{
 		if (bfc && !cw)
 			os << "0 BFC INVERTNEXT" << endl;
 		os << setprecision(5);
 		os << "1 " << color << " " << transfo << " " << name << ".dat" << endl;
-    }
+	}
 }
 
 std::string str_tolower(std::string s) {
@@ -979,7 +998,7 @@ std::string str_tolower(std::string s) {
 
 void stl_file::write_dat(bool print_geom)
 {
-	eps_empile( 0.0001);
+	eps_empile(0.0001);
 	string dat_name;
 	if (ldr_out)
 		dat_name = out_filename;
@@ -1000,26 +1019,26 @@ void stl_file::write_dat(bool print_geom)
 	}
 	ofstream fout(dat_name);
 	fout << "0 " << partname << endl;
-	int f = max(dat_name.rfind("/"),dat_name.rfind("\\"));
+	int f = max(dat_name.rfind("/"), dat_name.rfind("\\"));
 	if (f > 0)
-		dat_name = dat_name.substr(f+1);
+		dat_name = dat_name.substr(f + 1);
 	fout << "0 Name: " << dat_name << endl;
 	fout << "0 Author: " << author << endl;
 	if (ldraw)
 	{
-	    if (name.substr(0,2) == "s\\")
-		fout << "0 !LDRAW_ORG Unofficial_Subpart" << endl;
-	    else if (name.substr(0,2) == "p\\")
-		fout << "0 !LDRAW_ORG Unofficial_Primitive" << endl;
-	    else if (name.substr(0,5) == "p\\48\\")
-		fout << "0 !LDRAW_ORG Unofficial_48_Primitive" << endl;
-	    else
-		fout << "0 !LDRAW_ORG Unofficial_Part" << endl;
-	    fout << "0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt" << endl;
+		if (name.substr(0, 2) == "s\\")
+			fout << "0 !LDRAW_ORG Unofficial_Subpart" << endl;
+		else if (name.substr(0, 2) == "p\\")
+			fout << "0 !LDRAW_ORG Unofficial_Primitive" << endl;
+		else if (name.substr(0, 5) == "p\\48\\")
+			fout << "0 !LDRAW_ORG Unofficial_48_Primitive" << endl;
+		else
+			fout << "0 !LDRAW_ORG Unofficial_Part" << endl;
+		fout << "0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt" << endl;
 	}
 	fout << endl;
 	if (bfc)
-	    fout << "0 BFC CERTIFY CCW" << endl;
+		fout << "0 BFC CERTIFY CCW" << endl;
 	fout << endl;
 	fout << "0 // Created with stl2dat conversion tool" << endl;
 	stl_prim_list * curp = prim_list;
@@ -1054,10 +1073,10 @@ void stl_file::write_dat(bool print_geom)
 		if (!surf->prim)
 		{
 			fout << endl;
-	//		eps_empile( 0.01);
+			//		eps_empile( 0.01);
 			if (print_geom)
 				curs->item->write(fout);
-	//		eps_depile();
+			//		eps_depile();
 			int col3 = col_line3;
 			int col4 = col_line4;
 			if (rand_col_surfaces || (rand_col_adj_cyl && surf->adj_cyl))
@@ -1120,7 +1139,7 @@ void stl_file::add_edge(int usage, const stl_v& v0, const stl_v& v1, const stl_v
 }
 
 // create vertex if necessary, link to facet and edge
-void create_vertex( stl_vertex_list * & vertex_list, stl_edge * edge, stl_facet * fct1, stl_facet * fct2, int i1, int i2)
+void create_vertex(stl_vertex_list * & vertex_list, stl_edge * edge, stl_facet * fct1, stl_facet * fct2, int i1, int i2)
 {
 	bool reaffect = false;
 	stl_vertex * result = fct1->vertex[i1];
@@ -1142,22 +1161,22 @@ void create_vertex( stl_vertex_list * & vertex_list, stl_edge * edge, stl_facet 
 	if (!result)
 	{
 		result = new stl_vertex(fct1->coords[i1]);
-		vertex_list = new stl_vertex_list( result, vertex_list);
+		vertex_list = new stl_vertex_list(result, vertex_list);
 	}
-	result->add_edge( edge);
+	result->add_edge(edge);
 	if (reaffect)
 	{
 		stl_edge_list * cur = vertex2->edge_list;
 		while (cur)
 		{
-			for (int i=0; i < 2; i++)
+			for (int i = 0; i < 2; i++)
 			{
 				if (cur->item->vertex[i] == vertex2)
 					cur->item->vertex[i] = result;
 				stl_facet * adj = cur->item->adjacent[i];
 				if (adj)
 				{
-					for (int v=0; v < adj->usage; v++)
+					for (int v = 0; v < adj->usage; v++)
 						if (adj->vertex[v] == vertex2)
 							adj->vertex[v] = result;
 				}
@@ -1172,12 +1191,12 @@ void create_vertex( stl_vertex_list * & vertex_list, stl_edge * edge, stl_facet 
 }
 
 void add_edge2(
-		stl_edge_list * & edge_list, 
-		stl_vertex_list * & vertex_list, 
-		stl_facet * fct1, 
-		stl_facet * fct2, 
-		int i1, int i2, int j2
-		)
+	stl_edge_list * & edge_list,
+	stl_vertex_list * & vertex_list,
+	stl_facet * fct1,
+	stl_facet * fct2,
+	int i1, int i2, int j2
+)
 {
 	//cout << "add_edge2( [" << fct1->ident() << "], [" << fct2->ident() << "], " << i1 << ", " << i2 << ", " << j2 << ")" << endl;
 	stl_edge * edge = new stl_edge();
@@ -1188,27 +1207,27 @@ void add_edge2(
 	edge->coords[0] = i1;	// number of vertex in adjacent[0] (minimum)
 	edge->coords[1] = i2;	// number of vertex in adjacent[1] (minimum)
 
-	int k1 = (i1+1) % fct1->usage;
+	int k1 = (i1 + 1) % fct1->usage;
 	int k2 = 0;
 	if (fct2)
-		k2 = (i2 == j2 ? (i2+1) % fct2->usage : i2);
-	create_vertex( vertex_list, edge, fct1, fct2, i1, j2);
-	create_vertex( vertex_list, edge, fct1, fct2, k1, k2);
+		k2 = (i2 == j2 ? (i2 + 1) % fct2->usage : i2);
+	create_vertex(vertex_list, edge, fct1, fct2, i1, j2);
+	create_vertex(vertex_list, edge, fct1, fct2, k1, k2);
 	if (fct2)
 	{
 		fct2->edge[i2] = edge;
 		fct2->adjacent[i2] = fct1;
 	}
-	edge_list = new stl_edge_list( edge, edge_list);
+	edge_list = new stl_edge_list(edge, edge_list);
 }
 
 // Calculate edges between 2 facets
 int stl_file::create_edge(stl_facet * fct1, stl_facet * fct2)
 {
 	int result = 0;
-	for (int i1=0; i1 < fct1->usage; i1++)
+	for (int i1 = 0; i1 < fct1->usage; i1++)
 		if (!fct1->edge[i1])
-			for (int i2=0; i2 < fct2->usage; i2++)
+			for (int i2 = 0; i2 < fct2->usage; i2++)
 				if (!fct2->edge[i2])
 				{
 					int j1 = (i1 + 1) % fct1->usage;
@@ -1216,12 +1235,12 @@ int stl_file::create_edge(stl_facet * fct1, stl_facet * fct2)
 					if (fct1->coords[i1] == fct2->coords[i2] && fct1->coords[j1] == fct2->coords[j2])
 					{
 						result++;
-						add_edge2( edge_list, vertex_list, fct1, fct2, i1, i2, i2 );
+						add_edge2(edge_list, vertex_list, fct1, fct2, i1, i2, i2);
 					}
 					else if (fct1->coords[i1] == fct2->coords[j2] && fct1->coords[j1] == fct2->coords[i2])
 					{
 						result++;
-						add_edge2( edge_list, vertex_list, fct1, fct2, i1, i2, j2 );
+						add_edge2(edge_list, vertex_list, fct1, fct2, i1, i2, j2);
 					}
 				}
 	return(result);
@@ -1243,13 +1262,13 @@ void stl_file::topo()
 			{
 				stl_facet * fct2 = cur2->item;
 				if (fct2->usage)
-					nb_edge += create_edge(fct1,fct2);
+					nb_edge += create_edge(fct1, fct2);
 				cur2 = cur2->next;
 			}
-			for (int i1=0; i1 < fct1->usage; i1++)
+			for (int i1 = 0; i1 < fct1->usage; i1++)
 				if (!fct1->edge[i1])
 				{
-					add_edge2( edge_list, vertex_list, fct1, NULL, i1, -1, -1 );
+					add_edge2(edge_list, vertex_list, fct1, NULL, i1, -1, -1);
 				}
 			nb_edge++;
 		}
@@ -1258,30 +1277,30 @@ void stl_file::topo()
 	if (!silent)
 		cout << nb_edge << " edges created" << endl;
 #ifdef DEBUG
-/*
-if (!nodebug)
-	{
-		stl_edge_list * cure = edge_list;
-		while (cure)
+	/*
+	if (!nodebug)
 		{
-			if (cure->item->adjacent[1])
-				cout << "edge adj(" << cure->item->adjacent[0]->nbr_facet << ","
-					 << cure->item->adjacent[1]->nbr_facet << ")" << endl;
-			else
-				cout << "edge end(" << cure->item->adjacent[0]->nbr_facet << ")" << endl;
-			cure = cure->next;
+			stl_edge_list * cure = edge_list;
+			while (cure)
+			{
+				if (cure->item->adjacent[1])
+					cout << "edge adj(" << cure->item->adjacent[0]->nbr_facet << ","
+						 << cure->item->adjacent[1]->nbr_facet << ")" << endl;
+				else
+					cout << "edge end(" << cure->item->adjacent[0]->nbr_facet << ")" << endl;
+				cure = cure->next;
+			}
+			stl_facet_list * curf = facet_list;
+			while (curf)
+			{
+				cout << "facet(" << curf->item->nbr_facet << ") " << endl;
+				for (int i = 0 ; i < curf->item->usage ; i++)
+					if (curf->item->adjacent[i])
+						cout << "adj[" << i << "]=(" << curf->item->adjacent[i]->nbr_facet << ")" << endl;
+				curf = curf->next;
+			}
 		}
-		stl_facet_list * curf = facet_list;
-		while (curf)
-		{
-			cout << "facet(" << curf->item->nbr_facet << ") " << endl;
-			for (int i = 0 ; i < curf->item->usage ; i++)
-				if (curf->item->adjacent[i])
-					cout << "adj[" << i << "]=(" << curf->item->adjacent[i]->nbr_facet << ")" << endl;
-			curf = curf->next;
-		}
-	}
-*/
+	*/
 #endif
 	//check();
 }
@@ -1303,23 +1322,23 @@ bool merge3(stl_facet * fct1, stl_facet * fct2)
 	if (fct1->normal == fct2->normal && fct1->usage == 3 && fct2->usage == 3)
 	{
 		bool result = false;
-		for (int i1=0; i1 < 3 && !result; i1++)
-			for (int i2=0; i2 < 3 && !result; i2++)
+		for (int i1 = 0; i1 < 3 && !result; i1++)
+			for (int i2 = 0; i2 < 3 && !result; i2++)
 				if (fct1->coords[i1] == fct2->coords[i2])
 				{
-					for (int j1=0; j1 < 3 && !result; j1++)
-						for (int j2=0; j2 < 3 && !result; j2++)
+					for (int j1 = 0; j1 < 3 && !result; j1++)
+						for (int j2 = 0; j2 < 3 && !result; j2++)
 							if (j1 != i1 && j2 != i2 && fct1->coords[j1] == fct2->coords[j2])
 							{
-								int k1 = other(i1,j1);
-								int k2 = other(i2,j2);
-								if (fct1->coords[i1].colinear(fct1->coords[k1],fct2->coords[k2]))
+								int k1 = other(i1, j1);
+								int k2 = other(i2, j2);
+								if (fct1->coords[i1].colinear(fct1->coords[k1], fct2->coords[k2]))
 								{
 									fct1->coords[i1] = fct2->coords[k2];
 									fct2->usage = 0;
 									return(true);
 								}
-								else if (fct1->coords[j1].colinear(fct1->coords[k1],fct2->coords[k2]))
+								else if (fct1->coords[j1].colinear(fct1->coords[k1], fct2->coords[k2]))
 								{
 									fct1->coords[j1] = fct2->coords[k2];
 									fct2->usage = 0;
@@ -1344,7 +1363,7 @@ void stl_file::optim3()
 	while (cur)
 	{
 		fct2 = cur->item;
-		if (merge3(fct1,fct2))
+		if (merge3(fct1, fct2))
 			opt3++;
 		stl_facet_list * cur2 = cur->next;
 		for (int c = 0; c < 200 && cur2; c++)
@@ -1361,16 +1380,16 @@ void stl_file::optim3()
 		cout << opt3 << " triangle facets merged" << endl;
 }
 
-void stl_facet::calcul_angles( double & totag, double & minag, double & maxag)
+void stl_facet::calcul_angles(double & totag, double & minag, double & maxag)
 {
 	totag = 0;
 	minag = 1000;
 	maxag = -1000;
 	for (int a = 0; a < 4; a++)
 	{
-		int b = (a+1) % 4;
-		int c = (a+2) % 4;
-		double ag = (coords[a]-coords[b]).angle(coords[c]-coords[b], normal);
+		int b = (a + 1) % 4;
+		int c = (a + 2) % 4;
+		double ag = (coords[a] - coords[b]).angle(coords[c] - coords[b], normal);
 		totag += ag;
 		if (ag < minag)
 			minag = ag;
@@ -1387,20 +1406,20 @@ bool stl_facet::is_convex(bool trace)
 	double totag;
 	double minag;
 	double maxag;
-	calcul_angles( totag, minag, maxag);
+	calcul_angles(totag, minag, maxag);
 	if (trace)
-		cout << "(" << nbr_facet << ") tot=" << degre(totag) << "? min=" << degre(minag) << "? max=" << degre(maxag) << "?" << endl;
-	if (equal(totag, 4*pi))
+		cout << "(" << nbr_facet << ") tot=" << degre(totag) << "° min=" << degre(minag) << "° max=" << degre(maxag) << "°" << endl;
+	if (equal(totag, 4 * pi))
 	{
 		stl_v tmp = coords[0];
 		coords[0] = coords[1];
 		coords[1] = coords[2];
 		coords[2] = tmp;
-		calcul_angles( totag, minag, maxag);
+		calcul_angles(totag, minag, maxag);
 		if (trace)
-			cout << "(" << nbr_facet << ") tot=" << degre(totag) << "? min=" << degre(minag) << "? max=" << degre(maxag) << "?" << endl;
+			cout << "(" << nbr_facet << ") tot=" << degre(totag) << "° min=" << degre(minag) << "° max=" << degre(maxag) << "°" << endl;
 	}
-	result = (equal(totag, 2*pi) && maxag < pi - ag_lim_q) || (equal(totag, 6*pi) && minag > pi + ag_lim_q);
+	result = (equal(totag, 2 * pi) && maxag < pi - ag_lim_q) || (equal(totag, 6 * pi) && minag > pi + ag_lim_q);
 	return(result);
 }
 
@@ -1446,7 +1465,7 @@ double stl_facet::determinant(int precision)
 			if (precision == -1)
 				v[i] = vertex[i]->coords.ftrunc(-vertex[i]->precision);
 			else
-				v[i] = vertex[i]->coords.ftrunc(-max(precision,-vertex[i]->precision));
+				v[i] = vertex[i]->coords.ftrunc(-max(precision, -vertex[i]->precision));
 		}
 		result = determinant4(v);
 	}
@@ -1472,10 +1491,10 @@ int stl_edge::side(stl_facet * m_facet)
 void stl_edge::reaffect(stl_facet * m_facet, stl_facet * repl_facet, int ve)
 {
 	int s = side(m_facet);
-	adjacent[ s] = repl_facet;
-	coords[ s] = ve;
-	if (coords[ 1 - s] >= 0 && coords[ 1 - s] <= 3 && adjacent[ 1 - s])
-		adjacent[ 1 - s]->adjacent[ coords[ 1 - s]] = repl_facet;
+	adjacent[s] = repl_facet;
+	coords[s] = ve;
+	if (coords[1 - s] >= 0 && coords[1 - s] <= 3 && adjacent[1 - s])
+		adjacent[1 - s]->adjacent[coords[1 - s]] = repl_facet;
 }
 
 // Reaffect border edges to new merged facet
@@ -1498,10 +1517,10 @@ void stl_facet::merge_facet(stl_edge * m_edge, stl_facet * m_facet, int ve0, int
 // Merge 2 adjacent triangles facet to 1 rectangle facet
 bool stl_edge::merge_adj()
 {
-//	cout << this << " merge_adj" << endl;
+	//	cout << this << " merge_adj" << endl;
 	bool result = false;
 	if (adjacent[0] && adjacent[1] &&
-		(adjacent[0]->normal == adjacent[1]->normal || adjacent[0]->normal == -adjacent[1]->normal) && 
+		(adjacent[0]->normal == adjacent[1]->normal || adjacent[0]->normal == -adjacent[1]->normal) &&
 		adjacent[0]->usage == 3 && adjacent[1]->usage == 3)
 	{
 		// Insert new point to rectangle facet
@@ -1511,8 +1530,8 @@ bool stl_edge::merge_adj()
 			adjacent[0]->coords[i] = adjacent[0]->coords[i - 1];
 			adjacent[0]->vertex[i] = adjacent[0]->vertex[i - 1];
 		}
-		adjacent[0]->coords[j] = coord(2,1);
-		adjacent[0]->vertex[j] = vertx(2,1);
+		adjacent[0]->coords[j] = coord(2, 1);
+		adjacent[0]->vertex[j] = vertx(2, 1);
 		// verify convex quadrilater
 		adjacent[0]->usage = 4;
 		int p = 2;
@@ -1526,27 +1545,27 @@ bool stl_edge::merge_adj()
 				if (det > determinant_eps)
 					p++;
 			}
-			adjacent[0]->precision = max(adjacent[0]->precision,p);
+			adjacent[0]->precision = max(adjacent[0]->precision, p);
 			for (int i = 0; i < 4; i++)
 			{
-				adjacent[0]->vertex[i]->precision = max(adjacent[0]->vertex[i]->precision,p);
+				adjacent[0]->vertex[i]->precision = max(adjacent[0]->vertex[i]->precision, p);
 			}
-//if (det > determinant_eps)
-//{
-//cout << setprecision(7);
-//cout << "4 " << 1 << " " << adjacent[0]->vertex[0] << " " << adjacent[0]->vertex[1] << " " << adjacent[0]->vertex[2] << " " << adjacent[0]->vertex[3] << " p=" << p << " det=" << det << endl;
-//}
-			//cout << "merge4 " << det << endl;
-			//adjacent[0]->color = 4;
+			//if (det > determinant_eps)
+			//{
+			//cout << setprecision(7);
+			//cout << "4 " << 1 << " " << adjacent[0]->vertex[0] << " " << adjacent[0]->vertex[1] << " " << adjacent[0]->vertex[2] << " " << adjacent[0]->vertex[3] << " p=" << p << " det=" << det << endl;
+			//}
+						//cout << "merge4 " << det << endl;
+						//adjacent[0]->color = 4;
 		}
 		if (adjacent[0]->is_convex() && det <= determinant_eps)
 		{
 #ifdef DEBUG
-	if (!nodebug)
-		cout << "merge4 " << adjacent[0]->nbr_facet << " " << adjacent[1]->nbr_facet << endl;
+			if (!nodebug)
+				cout << "merge4 " << adjacent[0]->nbr_facet << " " << adjacent[1]->nbr_facet << endl;
 #endif
 			result = true;
-			adjacent[0]->merge_facet( this, adjacent[1], coords[0], coords[1]);
+			adjacent[0]->merge_facet(this, adjacent[1], coords[0], coords[1]);
 			adjacent[0]->usage = 4;
 			adjacent[1]->usage = 0;
 			linetype = -1;
@@ -1601,7 +1620,7 @@ stl_edge * stl_edge::next(int & vx, stl_facet * & s_fct)
 	}
 	else
 	*/
-		return(0);
+	return(0);
 }
 
 void stl_facet::replace_vertex(stl_vertex * ve_ori, stl_vertex * ve_repl)
@@ -1613,15 +1632,15 @@ void stl_facet::replace_vertex(stl_vertex * ve_ori, stl_vertex * ve_repl)
 			coords[i] = ve_repl->coords;
 			int j = edge[i]->side(this);
 			edge[i]->vertex[j] = ve_repl;
-/*
-			for (int j = 0; j < 2; j++)
-				if (edge[i]->vertex[j] == ve_ori)
-				{
-					edge[i]->coords[j] = i;
-				}
-*/
+			/*
+						for (int j = 0; j < 2; j++)
+							if (edge[i]->vertex[j] == ve_ori)
+							{
+								edge[i]->coords[j] = i;
+							}
+			*/
 		}
-//		ed->vertex[i] = ve_repl;
+	//		ed->vertex[i] = ve_repl;
 }
 
 void stl_facet::replace_adjacent(stl_vertex * ve_ori, stl_edge * ed, bool del_edge)
@@ -1642,7 +1661,7 @@ void stl_facet::replace_adjacent(stl_vertex * ve_ori, stl_edge * ed, bool del_ed
 	if (fct0)
 	{
 		// replace adjencent pointers for facets
-		ad0 = fct0->side_edge( ed0);
+		ad0 = fct0->side_edge(ed0);
 		fct0->adjacent[ad0] = fct1;
 
 		for (int i = 0; i < fct0->usage; i++)
@@ -1658,7 +1677,7 @@ void stl_facet::replace_adjacent(stl_vertex * ve_ori, stl_edge * ed, bool del_ed
 	if (fct1)
 	{
 		// replace adjencent pointers for facets
-		int ad1 = fct1->side_edge( ed1);
+		int ad1 = fct1->side_edge(ed1);
 		fct1->adjacent[ad1] = fct0;
 
 		// replace coords in modified edges
@@ -1679,7 +1698,7 @@ void stl_facet::replace_adjacent(stl_vertex * ve_ori, stl_edge * ed, bool del_ed
 	usage = 0;
 }
 
-/* 
+/*
 	// replace adjency pointers for facets
 	int ad0 = fct0->side_edge( ed0);
 	int ad1 = fct1->side_edge( ed1);
@@ -1728,18 +1747,18 @@ void stl_vertex::remove_vertex(stl_edge * ed_supr)
 		{
 			stl_facet * fct = ed->adjacent[0];
 			if (fct/* && fct != fct0 && fct != fct1*/)
-				fct->replace_vertex( this, ve_repl);
+				fct->replace_vertex(this, ve_repl);
 
 			fct = ed->adjacent[1];
 			if (fct/* && fct != fct0 && fct != fct1*/)
-				fct->replace_vertex( this, ve_repl);
+				fct->replace_vertex(this, ve_repl);
 		}
 		cur = cur->next;
 	}
 	if (fct0)
-		fct0->replace_adjacent( this, ed_supr, false);
+		fct0->replace_adjacent(this, ed_supr, false);
 	if (fct1)
-		fct1->replace_adjacent( this, ed_supr, false);
+		fct1->replace_adjacent(this, ed_supr, false);
 
 	deleted = true;
 	ed_supr->deleted = true;
@@ -1886,8 +1905,8 @@ void stl_vertex::scan_edges(int nb_face)
 				init_surface += cur->item->adjacent[a]->surface();
 			cur = cur->next;
 		}
-		init_surface /= 2;	
-//cout << "init_surface=" << init_surface << endl;
+		init_surface /= 2;
+		//cout << "init_surface=" << init_surface << endl;
 		cur = edge_list;
 		bool found = false;
 		while (cur && !found)
@@ -1902,7 +1921,7 @@ void stl_vertex::scan_edges(int nb_face)
 				cur2 = cur2->next;
 			}
 			cur_surface /= 2;
-//cout << "cur_surface=" << cur_surface << endl;
+			//cout << "cur_surface=" << cur_surface << endl;
 			found = is_small(cur_surface - init_surface);
 			if (!found)
 				cur = cur->next;
@@ -1965,8 +1984,8 @@ void stl_file::optim_facets(int nb_face)
 		cout << opt_v << " unusefull vertices removed" << endl;
 	eps_depile();
 #ifdef _DEBUG
-if (!nodebug)
-	check();
+	if (!nodebug)
+		check();
 #endif
 }
 
@@ -1990,7 +2009,7 @@ void stl_file::optim4()
 }
 
 // return plane corresponding to facet
-void stl_facet::facetplan( stl_v & op, stl_v & vp)
+void stl_facet::facetplan(stl_v & op, stl_v & vp)
 {
 	//long orient;
 	//scalplan(coords[0],coords[1],coords[2], op, vp, orient);
@@ -2016,19 +2035,19 @@ bool stl_facet::is_adjacent(stl_facet * fct1)
 	for (int i = 0; !result && i < usage; i++)
 		for (int j = 0; !result && j < fct1->usage; j++)
 		{
-			int i1 = (i+1) % usage;
-			int j1 = (j+1) % fct1->usage;
+			int i1 = (i + 1) % usage;
+			int j1 = (j + 1) % fct1->usage;
 			result = (coords[i] == fct1->coords[j] && coords[i1] == fct1->coords[j1]) ||
-					 (coords[i] == fct1->coords[j1] && coords[i1] == fct1->coords[j]);
+				(coords[i] == fct1->coords[j1] && coords[i1] == fct1->coords[j]);
 		}
 #ifdef DEBUG
-if (!nodebug)
-	cout << "adjacent(" << nbr_facet << "," << fct1->nbr_facet << ") = " << result << endl;
+	if (!nodebug)
+		cout << "adjacent(" << nbr_facet << "," << fct1->nbr_facet << ") = " << result << endl;
 #endif
 	return(result);
 }
 
-void stl_file::add_prim( stl_prim * prim)
+void stl_file::add_prim(stl_prim * prim)
 {
 	stl_prim_list * prim_elem = new stl_prim_list;
 	prim_elem->item = prim;
@@ -2041,35 +2060,35 @@ void stl_file::add_prim( stl_prim * prim)
 }
 
 const stl_lin std_lin = stl_lin(stl_v(1.0, 0.0, 0.0),
-							stl_v(0.0, 0.0, 1.0),
-							stl_v(0.0, 1.0, 0.0),
-							stl_v(0.0, 0.0, 0.0));
+	stl_v(0.0, 0.0, 1.0),
+	stl_v(0.0, 1.0, 0.0),
+	stl_v(0.0, 0.0, 0.0));
 
 const int MAX_AXE = 128;
 
 /*
-Line type 1's format is: 
+Line type 1's format is:
 
-Line Format: 
-1 colour x y z a b c d e f g h i part.dat 
-Fields a through i are orientation & scaling parameters, which can be used in 'standard' 3D transformation matrices. Fields x, y and z also fit into this matrix: 
+Line Format:
+1 colour x y z a b c d e f g h i part.dat
+Fields a through i are orientation & scaling parameters, which can be used in 'standard' 3D transformation matrices. Fields x, y and z also fit into this matrix:
 
-    | a d g 0 |
-    | b e h 0 |
-    | c f i 0 |
-    | x y z 1 |
-   
-so that every point (x, y ,z) gets transformed to (x', y', z') : 
+	| a d g 0 |
+	| b e h 0 |
+	| c f i 0 |
+	| x y z 1 |
 
-    x' = a*x + b*y + c*z + x
-    y' = d*x + e*y + f*z + y
-    z' = g*x + h*y + i*z + z
-   
-or, in matrix-math style: 
-                                    | a d g 0 |
-    | X' Y' Z' 1 | = | X Y Z 1 | x  | b e h 0 |
-                                    | c f i 0 |
-                                    | x y z 1 |
+so that every point (x, y ,z) gets transformed to (x', y', z') :
+
+	x' = a*x + b*y + c*z + x
+	y' = d*x + e*y + f*z + y
+	z' = g*x + h*y + i*z + z
+
+or, in matrix-math style:
+									| a d g 0 |
+	| X' Y' Z' 1 | = | X Y Z 1 | x  | b e h 0 |
+									| c f i 0 |
+									| x y z 1 |
 */
 
 
@@ -2081,37 +2100,37 @@ stl_surf::stl_surf()
 	adj_cyl = false;
 }
 
-void stl_surf::write( ostream & os)
+void stl_surf::write(ostream & os)
 {
 	if (adj_cyl)
 		os << " adjacent to cylinder" << endl;
 }
 
-void stl_surf::set_facet( stl_facet * fct)
+void stl_surf::set_facet(stl_facet * fct)
 {
 }
 
-stl_cylinder::stl_cylinder( const stl_v & _od, const stl_v & _vd, double _radius, double _height) : stl_surf()
+stl_cylinder::stl_cylinder(const stl_v & _od, const stl_v & _vd, double _radius, double _height) : stl_surf()
 {
 	od = _od;
 	vd = _vd;
-	sidrpl( od, vd, stl_v_zero, vd, od);
+	sidrpl(od, vd, stl_v_zero, vd, od);
 	radius = _radius;
 	height = _height;
 	cw = false;
 }
 
-void stl_cylinder::write( ostream & os)
+void stl_cylinder::write(ostream & os)
 {
 	os << setprecision(5);
-	os << "0 cylinder " << od << ", " << vd << ", " << Mfround(radius,001) << ", " << Mfround(height,001);
+	os << "0 cylinder " << od << ", " << vd << ", " << Mfround(radius, 001) << ", " << Mfround(height, 001);
 	if (adj_cyl)
 		os << " adjacent to cylinder";
 	os << endl;
 }
 
 
-bool stl_cylinder::compatible( stl_facet * fct, stl_facet * adj)
+bool stl_cylinder::compatible(stl_facet * fct, stl_facet * adj)
 {
 	// Test if the two facets have same axis, radius and height
 	bool result = false;
@@ -2119,7 +2138,7 @@ bool stl_cylinder::compatible( stl_facet * fct, stl_facet * adj)
 	if (cylinder)
 	{
 		result = ((vd == cylinder->vd || vd == -cylinder->vd) &&
-			sapptdr( cylinder->od, od, vd) &&
+			sapptdr(cylinder->od, od, vd) &&
 			equal(radius, cylinder->radius) &&
 			equal(height, cylinder->height));
 		delete cylinder;
@@ -2137,14 +2156,14 @@ bool stl_cylinder::compatible( stl_facet * fct, stl_facet * adj)
 	return(result);
 }
 
-stl_plane::stl_plane( const stl_v & _op, const stl_v & _vp) : stl_surf()
+stl_plane::stl_plane(const stl_v & _op, const stl_v & _vp) : stl_surf()
 {
 	op = _op;
 	vp = _vp;
-	sidrpl( stl_v_zero, vp, op, vp, op);
+	sidrpl(stl_v_zero, vp, op, vp, op);
 }
 
-void stl_plane::write( ostream & os)
+void stl_plane::write(ostream & os)
 {
 	os << setprecision(5);
 	os << "0 plane " << op << ", " << vp;
@@ -2153,39 +2172,39 @@ void stl_plane::write( ostream & os)
 	os << endl;
 }
 
-bool stl_plane::compatible( stl_facet * fct, stl_facet *)
+bool stl_plane::compatible(stl_facet * fct, stl_facet *)
 {
 	bool result = false;
 	stl_plane * plane = fct->new_plane();
 	if (plane)
 	{
 #ifdef DEBUG
-	if (!nodebug)
-	{
-		cout << "compatible [" << op << "," << vp 
-			<< "] and [" << plane->op << "," << plane->vp << "] " 
-			<< (vp - plane->vp).norm() << " " 
-			<< spaplan( plane->op, op, vp) << " = " 
-			<< (vp == plane->vp && sapptpl( plane->op, op, vp)) << endl;
-	}
+		if (!nodebug)
+		{
+			cout << "compatible [" << op << "," << vp
+				<< "] and [" << plane->op << "," << plane->vp << "] "
+				<< (vp - plane->vp).norm() << " "
+				<< spaplan(plane->op, op, vp) << " = "
+				<< (vp == plane->vp && sapptpl(plane->op, op, vp)) << endl;
+		}
 #endif
-		result = (vp == plane->vp && sapptpl( plane->op, op, vp));
+		result = (vp == plane->vp && sapptpl(plane->op, op, vp));
 		delete plane;
 	}
 	return(result);
 }
- 
-stl_tangent::stl_tangent( stl_facet * fct) : stl_surf()
+
+stl_tangent::stl_tangent(stl_facet * fct) : stl_surf()
 {
 	facet = fct;
 }
 
-void stl_tangent::set_facet( stl_facet * fct)
+void stl_tangent::set_facet(stl_facet * fct)
 {
 	facet = fct;
 }
 
-bool stl_tangent::compatible( stl_facet * fct, stl_facet *)
+bool stl_tangent::compatible(stl_facet * fct, stl_facet *)
 {
 	bool result = false;
 	bool adj = false;
@@ -2210,14 +2229,14 @@ stl_plane * stl_facet::new_plane()
 	{
 		stl_v f_op;
 		stl_v f_vp;
-		facetplan( f_op, f_vp);
-		result = new stl_plane( f_op, f_vp);
+		facetplan(f_op, f_vp);
+		result = new stl_plane(f_op, f_vp);
 	}
 	return(result);
 }
 
 
-stl_cylinder * stl_facet::new_cylinder( stl_facet * fct2, const stl_v & op, const stl_v & vp, const double angle_cyl)
+stl_cylinder * stl_facet::new_cylinder(stl_facet * fct2, const stl_v & op, const stl_v & vp, const double angle_cyl)
 {
 	stl_cylinder * result = 0;
 	if (usage != 4 || fct2->usage != 4)
@@ -2228,21 +2247,21 @@ stl_cylinder * stl_facet::new_cylinder( stl_facet * fct2, const stl_v & op, cons
 	{
 		double ag = normal.angle(fct2->normal, v_ref);
 #ifdef DEBUG
-if (!nodebug)
-	cout << "angle(" << nbr_facet << "," << fct2->nbr_facet << ") = " << degre(ag) << "?" << endl;
+		if (!nodebug)
+			cout << "angle(" << nbr_facet << "," << fct2->nbr_facet << ") = " << degre(ag) << "°" << endl;
 #endif
 		if (equal(ag, angle_cyl))
 		{
 			stl_v op2;
 			stl_v vp2;
-			fct2->facetplan( op2, vp2);
+			fct2->facetplan(op2, vp2);
 
 			stl_v od1;
 			stl_v vd1;
 			double dist;
 			stl_v p1;
-			stl_v p2; 
-			int res = s_dist_drdr( op, vp, op2, vp2, dist, p1, p2);
+			stl_v p2;
+			int res = s_dist_drdr(op, vp, op2, vp2, dist, p1, p2);
 			od1 = (p1 + p2) / 2;
 			vd1 = (vp * vp2).normaliz();
 			double rad = 0;
@@ -2254,7 +2273,7 @@ if (!nodebug)
 			rad /= fct2->usage;
 
 			double max = -1e5;
-			double min =  1e5;
+			double min = 1e5;
 			for (int k = 0; k < usage; k++)
 			{
 				double dist = spaplan(coords[k], od1, vd1);
@@ -2285,10 +2304,10 @@ if (!nodebug)
 			}
 
 			if (ok)
-				if (angle_cyl == pi/8)
-					result = new stl_cylinder( od1, vd1, rad, max - min);
+				if (angle_cyl == pi / 8)
+					result = new stl_cylinder(od1, vd1, rad, max - min);
 				else
-					result = new stl_cylinder48( od1, vd1, rad, max - min);
+					result = new stl_cylinder48(od1, vd1, rad, max - min);
 			else
 				result = 0;
 		}
@@ -2296,44 +2315,44 @@ if (!nodebug)
 	return(result);
 }
 
-stl_cylinder * stl_facet::new_cylinder( stl_facet * fct2, const stl_v & op, const stl_v & vp)
+stl_cylinder * stl_facet::new_cylinder(stl_facet * fct2, const stl_v & op, const stl_v & vp)
 {
-	return new_cylinder( fct2, op, vp, pi/8);
+	return new_cylinder(fct2, op, vp, pi / 8);
 }
 
-stl_cylinder * stl_facet::new_cylinder48( stl_facet * fct2, const stl_v & op, const stl_v & vp)
+stl_cylinder * stl_facet::new_cylinder48(stl_facet * fct2, const stl_v & op, const stl_v & vp)
 {
-	return new_cylinder( fct2, op, vp, pi/24);
+	return new_cylinder(fct2, op, vp, pi / 24);
 }
 
-stl_cylinder * stl_facet::new_cylinder( stl_facet *	adj)
+stl_cylinder * stl_facet::new_cylinder(stl_facet *	adj)
 {
 	stl_cylinder * result = 0;
 	if (!cyl_norm || normal != read_normal)
 	{
 		stl_v op;
 		stl_v vp;
-		facetplan( op, vp);
-//		vp = read_normal;
+		facetplan(op, vp);
+		//		vp = read_normal;
 
 		if (adj)
-			result = new_cylinder( adj, op, vp);
+			result = new_cylinder(adj, op, vp);
 		else
 			for (int i = 0; i < usage && !result; i++)
 				if (adjacent[i]/* && !adjacent[i]->surf*/)
 				{
-					result = new_cylinder( adjacent[i], op, vp);
+					result = new_cylinder(adjacent[i], op, vp);
 				}
 		if (!result)
 		{
-		if (adj)
-			result = new_cylinder48( adj, op, vp);
-		else
-			for (int i = 0; i < usage && !result; i++)
-				if (adjacent[i]/* && !adjacent[i]->surf*/)
-				{
-					result = new_cylinder48( adjacent[i], op, vp);
-				}
+			if (adj)
+				result = new_cylinder48(adj, op, vp);
+			else
+				for (int i = 0; i < usage && !result; i++)
+					if (adjacent[i]/* && !adjacent[i]->surf*/)
+					{
+						result = new_cylinder48(adjacent[i], op, vp);
+					}
 		}
 	}
 	return(result);
@@ -2346,7 +2365,7 @@ stl_tangent * stl_facet::new_tangent()
 		if (adjacent[i])
 		{
 			if (angle_between(adjacent[i]) < ag_lim)
-				result = new stl_tangent( this);
+				result = new stl_tangent(this);
 		}
 	return(result);
 }
@@ -2358,8 +2377,8 @@ void stl_facet::calc_surf(stl_facet * fct, stl_surf_list * & surf_list)
 		f_surf = fct->surf;
 	//indent(level);
 #ifdef DEBUG
-if (!nodebug)
-	cout << "calc_surf(" << nbr_facet << ")" << endl;
+	if (!nodebug)
+		cout << "calc_surf(" << nbr_facet << ")" << endl;
 #endif
 	if (usage == 0 || surf)
 		return;
@@ -2367,7 +2386,7 @@ if (!nodebug)
 	bool first_facet = false;
 	if (f_surf)
 	{
-		if (f_surf->compatible( this, fct))
+		if (f_surf->compatible(this, fct))
 		{
 			surf = f_surf;
 			surf->count++;
@@ -2383,7 +2402,7 @@ if (!nodebug)
 		if (!no_tangent && !surf)
 			surf = new_tangent();
 		if (surf)
-			surf_list = new stl_surf_list( surf, surf_list);
+			surf_list = new stl_surf_list(surf, surf_list);
 		first_facet = true;
 	}
 	if (surf)
@@ -2394,7 +2413,7 @@ if (!nodebug)
 				surf->set_facet(this);
 				//cout << "test " << nbr_facet << " " << adjacent[i]->nbr_facet << endl;
 				adjacent[i]->calc_surf(this, surf_list);
-//edge[i]->color = 4;
+				//edge[i]->color = 4;
 			}
 		if (first_facet && surf->count == 1)
 		{
@@ -2405,7 +2424,7 @@ if (!nodebug)
 	}
 }
 
-int stl_facet::side_edge( stl_facet * fct)
+int stl_facet::side_edge(stl_facet * fct)
 {
 	int result = 0;
 	bool found = false;
@@ -2421,7 +2440,7 @@ int stl_facet::side_edge( stl_facet * fct)
 	return(result);
 }
 
-int stl_facet::side_edge( stl_edge * edg)
+int stl_facet::side_edge(stl_edge * edg)
 {
 	int result = 0;
 	bool found = false;
@@ -2437,20 +2456,20 @@ int stl_facet::side_edge( stl_edge * edg)
 	return(result);
 }
 
-stl_facet * stl_facet::next_surf( stl_facet * fct)
+stl_facet * stl_facet::next_surf(stl_facet * fct)
 {
 	stl_facet * result = 0;
-	for (int i = 0; i < usage && !result ; i++)
+	for (int i = 0; i < usage && !result; i++)
 		if (adjacent[i] && adjacent[i] != fct && adjacent[i]->surf == surf)
 			result = adjacent[i];
 	return(result);
 }
 
-void stl_surf::calc_prim( stl_facet * facet, stl_file & stl)
+void stl_surf::calc_prim(stl_facet * facet, stl_file & stl)
 {
 }
 
-int nb_zero( const stl_v & v)
+int nb_zero(const stl_v & v)
 {
 	int result = 0;
 	for (int i = 0; i < 3; i++)
@@ -2459,12 +2478,12 @@ int nb_zero( const stl_v & v)
 }
 
 void stl_cylinder::calc_extrem_partial(
-		stl_facet * facet,
-		stl_facet * & fct1,
-		stl_facet * & fct2,
-		stl_facet * & fct3,
-		stl_facet * & fct4
-		)
+	stl_facet * facet,
+	stl_facet * & fct1,
+	stl_facet * & fct2,
+	stl_facet * & fct3,
+	stl_facet * & fct4
+)
 {
 	// Search extremity of partial cylinder
 	fct1 = 0;
@@ -2475,7 +2494,7 @@ void stl_cylinder::calc_extrem_partial(
 	int tmp_count = count * nb_arete() / 16;
 	while (fct2 && (fct2 != facet || i == 0) && i < count)
 	{
-//		cout << "(1) fct2=" << fct2->nbr_facet << endl;
+		//		cout << "(1) fct2=" << fct2->nbr_facet << endl;
 		sfct2 = fct2;
 		sfct1 = fct1;
 		fct2 = fct2->next_surf(fct1);
@@ -2492,23 +2511,23 @@ void stl_cylinder::calc_extrem_partial(
 	fct4 = fct2;
 
 #ifdef DEBUG
-if (!nodebug)
-	cout << "(2)"
-		 << " fct1=" << (fct1 ? fct1->nbr_facet : 0)
-		 << " fct2=" << (fct2 ? fct2->nbr_facet : 0)
-		 << " fct3=" << (fct3 ? fct3->nbr_facet : 0)
-		 << " fct4=" << (fct4 ? fct4->nbr_facet : 0)
-		 <<endl;
+	if (!nodebug)
+		cout << "(2)"
+		<< " fct1=" << (fct1 ? fct1->nbr_facet : 0)
+		<< " fct2=" << (fct2 ? fct2->nbr_facet : 0)
+		<< " fct3=" << (fct3 ? fct3->nbr_facet : 0)
+		<< " fct4=" << (fct4 ? fct4->nbr_facet : 0)
+		<< endl;
 #endif
 	// Search next orthogonal facet of cylinder
 	sfct1 = fct1;
 	sfct2 = fct2;
 #ifdef DEBUG
-if (!nodebug)
-	cout << "(3)"
-		 << " fct1=" << (fct1 ? fct1->nbr_facet : 0)
-		 << " fct2=" << (fct2 ? fct2->nbr_facet : 0)
-		 <<endl;
+	if (!nodebug)
+		cout << "(3)"
+		<< " fct1=" << (fct1 ? fct1->nbr_facet : 0)
+		<< " fct2=" << (fct2 ? fct2->nbr_facet : 0)
+		<< endl;
 #endif
 	int nb_fac_orth = 3 * nb_arete() / 16;
 	for (i = 0; i < nb_fac_orth && fct1; i++)
@@ -2518,11 +2537,11 @@ if (!nodebug)
 		fct1 = fct1->next_surf(fct2);
 		fct2 = sfct1;
 #ifdef DEBUG
-if (!nodebug)
-		cout << "(3)"
-			 << " fct1=" << (fct1 ? fct1->nbr_facet : 0)
-			 << " fct2=" << (fct2 ? fct2->nbr_facet : 0)
-			 <<endl;
+		if (!nodebug)
+			cout << "(3)"
+			<< " fct1=" << (fct1 ? fct1->nbr_facet : 0)
+			<< " fct2=" << (fct2 ? fct2->nbr_facet : 0)
+			<< endl;
 #endif
 	}
 	if (!fct1)
@@ -2533,12 +2552,12 @@ if (!nodebug)
 }
 
 void stl_cylinder::calc_extrem_full(
-		stl_facet * facet,
-		stl_facet * & fct1,
-		stl_facet * & fct2,
-		stl_facet * & fct3,
-		stl_facet * & fct4
-		)
+	stl_facet * facet,
+	stl_facet * & fct1,
+	stl_facet * & fct2,
+	stl_facet * & fct3,
+	stl_facet * & fct4
+)
 {
 	//Find best first facet of cylinder
 	fct1 = 0;
@@ -2561,13 +2580,13 @@ void stl_cylinder::calc_extrem_full(
 	int i = 0;
 	do
 	{
-		calc_center( fct3, fct4, max_o, min_o, max_p, min_p );
+		calc_center(fct3, fct4, max_o, min_o, max_p, min_p);
 #ifdef DEBUG
-if (!nodebug)
-		cout << "(2)"
-			 << " fct3=" << (fct3 ? fct3->nbr_facet : 0)
-			 << " fct4=" << (fct4 ? fct4->nbr_facet : 0)
-			 << " nb_zero=" << nb_zero(min_p - min_o) << endl;
+		if (!nodebug)
+			cout << "(2)"
+			<< " fct3=" << (fct3 ? fct3->nbr_facet : 0)
+			<< " fct4=" << (fct4 ? fct4->nbr_facet : 0)
+			<< " nb_zero=" << nb_zero(min_p - min_o) << endl;
 #endif
 		if (nb_zero(min_p - min_o) > best_nb)
 		{
@@ -2575,11 +2594,11 @@ if (!nodebug)
 			sfct4 = fct4;
 			best_nb = nb_zero(min_p - min_o);
 #ifdef DEBUG
-if (!nodebug)
-		cout << "(2)"
-			 << " fct3=" << (fct3 ? fct3->nbr_facet : 0)
-			 << " fct4=" << (fct4 ? fct4->nbr_facet : 0)
-			 << " best_nb=" << best_nb << endl;
+			if (!nodebug)
+				cout << "(2)"
+				<< " fct3=" << (fct3 ? fct3->nbr_facet : 0)
+				<< " fct4=" << (fct4 ? fct4->nbr_facet : 0)
+				<< " best_nb=" << best_nb << endl;
 #endif
 		}
 
@@ -2600,11 +2619,11 @@ if (!nodebug)
 	for (i = 0; i < 6 && fct2; i++)
 	{
 #ifdef DEBUG
-if (!nodebug)
-		cout << "(3)"
-			 << " fct1=" << (fct1 ? fct1->nbr_facet : 0)
-			 << " fct2=" << (fct2 ? fct2->nbr_facet : 0)
-			 <<endl;
+		if (!nodebug)
+			cout << "(3)"
+			<< " fct1=" << (fct1 ? fct1->nbr_facet : 0)
+			<< " fct2=" << (fct2 ? fct2->nbr_facet : 0)
+			<< endl;
 #endif
 		sfct1 = fct1;
 		sfct2 = fct2;
@@ -2613,13 +2632,13 @@ if (!nodebug)
 	}
 }
 void stl_cylinder::calc_center(
-		stl_facet * fct3,
-		stl_facet * fct4,
-		stl_v & max_o,
-		stl_v & min_o,
-		stl_v & max_p,
-		stl_v & min_p
-		)
+	stl_facet * fct3,
+	stl_facet * fct4,
+	stl_v & max_o,
+	stl_v & min_o,
+	stl_v & max_p,
+	stl_v & min_p
+)
 
 {
 	//cout << "calc_center( fct3=" << (fct3 ? fct3->nbr_facet : 0) << " fct4=" << (fct4 ? fct4->nbr_facet : 0) << ")" << endl;
@@ -2627,8 +2646,8 @@ void stl_cylinder::calc_center(
 	// to get cylinder height
 
 	double max = -1e5;
-	double min =  1e5;
-//	int i = fct3->side_edge(fct3->next_surf(fct4));
+	double min = 1e5;
+	//	int i = fct3->side_edge(fct3->next_surf(fct4));
 	int i = fct4->side_edge(fct3);
 	for (int j = 2; j < 4; j++)
 	{
@@ -2653,13 +2672,13 @@ void stl_cylinder::calc_center(
 	min_p2.normalize();
 	min_p2 *= min_o.distance(max_p);
 	if (min_p2.ps(min_p - min_o) < 0)
-	    min_p = -(min_o + min_p2);
+		min_p = -(min_o + min_p2);
 	else
-	    min_p = (min_o + min_p2);
-	    */
+		min_p = (min_o + min_p2);
+		*/
 }
 
-void stl_cylinder::calc_prim( stl_facet * facet, stl_file & stl)
+void stl_cylinder::calc_prim(stl_facet * facet, stl_file & stl)
 {
 	int nb_cyl = 0;
 	int primitives = 0;
@@ -2669,7 +2688,7 @@ void stl_cylinder::calc_prim( stl_facet * facet, stl_file & stl)
 	stl_v min_o;
 	stl_v min_z;
 	stl_v max_z;
-//	stl_facet * fct0;
+	//	stl_facet * fct0;
 	int tmp_count = count * 16 / nb_arete();
 
 	if (tmp_count >= 4)
@@ -2682,57 +2701,57 @@ void stl_cylinder::calc_prim( stl_facet * facet, stl_file & stl)
 		stl_facet * fct4 = 0;
 		int i = 0;
 		if (tmp_count < 16)
-			calc_extrem_partial( facet, fct1, fct2, fct3, fct4);
+			calc_extrem_partial(facet, fct1, fct2, fct3, fct4);
 		else
-			calc_extrem_full( facet, fct1, fct2, fct3, fct4);
+			calc_extrem_full(facet, fct1, fct2, fct3, fct4);
 #ifdef DEBUG
 		if (!nodebug)
 		{
-		cout << "(4)"
-			 << " fct1=" << (fct1 ? fct1->nbr_facet : 0)
-			 << " fct2=" << (fct2 ? fct2->nbr_facet : 0)
-			 << " fct3=" << (fct3 ? fct3->nbr_facet : 0)
-			 << " fct4=" << (fct4 ? fct4->nbr_facet : 0)
-			 <<endl;
-		fct1->dump();
-		fct2->dump();
-		fct3->dump();
-		fct4->dump();
+			cout << "(4)"
+				<< " fct1=" << (fct1 ? fct1->nbr_facet : 0)
+				<< " fct2=" << (fct2 ? fct2->nbr_facet : 0)
+				<< " fct3=" << (fct3 ? fct3->nbr_facet : 0)
+				<< " fct4=" << (fct4 ? fct4->nbr_facet : 0)
+				<< endl;
+			fct1->dump();
+			fct2->dump();
+			fct3->dump();
+			fct4->dump();
 		}
 #endif
 		if (!fct2)
 			return;
 
-		calc_center( fct3, fct4, max_o, min_o, max_p, min_p );
+		calc_center(fct3, fct4, max_o, min_o, max_p, min_p);
 
 		// Calculate projection of facet on cylinder axis
 		// to get cylinder width
 		double max = -1e5;
-		double min =  1e5;
+		double min = 1e5;
 		i = fct1->side_edge(fct2);
 		for (int j = 2; j < 4; j++)
 		{
 			int k = (i + j) % fct1->usage;
 			double dist = spaplan(fct1->coords[k], od, vd);
-//cout << "k=" << k << " coords=" << fct1->coords[k] << " dist=" << dist << endl;
+			//cout << "k=" << k << " coords=" << fct1->coords[k] << " dist=" << dist << endl;
 			if (dist < min)
 			{
 				min = dist;
 				min_z = fct1->coords[k];
-//cout << "min=" << min << " min_z=" << min_z << endl;
+				//cout << "min=" << min << " min_z=" << min_z << endl;
 			}
 			if (dist > max)
 				max = dist;
 		}
-//cout << "min=" << min <<  " max=" << max << endl;
+		//cout << "min=" << min <<  " max=" << max << endl;
 
-		// Verify that cylinder is not truncated
+				// Verify that cylinder is not truncated
 		stl_facet * lst = facet;
 		stl_facet * cur = lst->next_surf(0);
 		do
 		{
 			double lmax = -1e5;
-			double lmin =  1e5;
+			double lmin = 1e5;
 			for (int j = 0; j < 4; j++)
 			{
 				double dist = spaplan(cur->coords[j], od, vd);
@@ -2741,14 +2760,13 @@ void stl_cylinder::calc_prim( stl_facet * facet, stl_file & stl)
 				if (dist > lmax)
 					lmax = dist;
 			}
-//cout << "lmin=" << lmin << " lmax=" << lmax << endl;
-			if (!equal( min, lmin) || !equal( max, lmax))
+			//cout << "lmin=" << lmin << " lmax=" << lmax << endl;
+			if (!equal(min, lmin) || !equal(max, lmax))
 				return;
 			stl_facet * nxt = cur->next_surf(lst);
 			lst = cur;
 			cur = nxt;
-		}
-		while (cur && cur != facet);
+		} while (cur && cur != facet);
 
 		if (rand_col_adj_cyl)
 		{
@@ -2765,8 +2783,7 @@ void stl_cylinder::calc_prim( stl_facet * facet, stl_file & stl)
 				stl_facet * nxt = cur->next_surf(lst);
 				lst = cur;
 				cur = nxt;
-			}
-			while (cur && cur != facet);
+			} while (cur && cur != facet);
 		}
 
 		// Calculate transformation matrix
@@ -2792,42 +2809,42 @@ void stl_cylinder::calc_prim( stl_facet * facet, stl_file & stl)
 
 		while (tmp_count > 0)
 		{
-		    string prefix("");
-		    int dec_count = 0;
-		    //if (tmp_count ==  4 || tmp_count ==  8 || tmp_count ==  12 || tmp_count ==  16)
-		    if (tmp_count >= 4 && tmp_count != 6 && tmp_count != 7)
-		    {
+			string prefix("");
+			int dec_count = 0;
+			//if (tmp_count ==  4 || tmp_count ==  8 || tmp_count ==  12 || tmp_count ==  16)
+			if (tmp_count >= 4 && tmp_count != 6 && tmp_count != 7)
+			{
 				prefix = string(1, (char)('0' + tmp_count / 4)) + string("-4");
-				dec_count = int( tmp_count / 4) * 4;
-		    }
-		    else if (tmp_count >= 2)
-		    {
+				dec_count = int(tmp_count / 4) * 4;
+			}
+			else if (tmp_count >= 2)
+			{
 				prefix = string(1, (char)('0' + tmp_count / 2)) + string("-8");
-				dec_count = int( tmp_count / 2) * 2;
-		    }
-		    else if (tmp_count == 1)
-		    {
+				dec_count = int(tmp_count / 2) * 2;
+			}
+			else if (tmp_count == 1)
+			{
 				prefix = "1-16";
 				dec_count = 1;
-		    }
-		    int col = col_line1;
-		    if (rand_col_surfaces)
-			    col = random_color();
+			}
+			int col = col_line1;
+			if (rand_col_surfaces)
+				col = random_color();
 			if (nb_arete() == 48)
 				prefix = "48\\" + prefix;
-		    stl_prim * prim_cyl = new stl_prim(prefix + "cyli", col, cw);
-		    stl_prim * prim_ed1 = new stl_prim(prefix + "edge", 16);
-		    stl_prim * prim_ed2 = new stl_prim(prefix + "edge", 16);
-		    prim_cyl->transfo = stl_lin(std_lin, stl_lin(min_p - min_o,  max_o - min_o,             min_z - min_o, min_o)) * lin_dec;
-		    prim_ed1->transfo = stl_lin(std_lin, stl_lin(min_p - min_o, (max_o - min_o).normaliz(), min_z - min_o, min_o)) * lin_dec;
-		    prim_ed2->transfo = stl_lin(std_lin, stl_lin(max_p - max_o, (max_o - min_o).normaliz(), min_z - min_o, max_o)) * lin_dec;
-		    stl.add_prim(prim_cyl);
-		    stl.add_prim(prim_ed1);
-		    stl.add_prim(prim_ed2);
-		    prim = prim_cyl;
-		    tmp_count -= dec_count;
-		    dec_count_tot += dec_count;
-		    lin_dec = stl_lin(stl_v(cos(dec_count_tot * pi / 8), 0.0, sin(dec_count_tot * pi / 8)),
+			stl_prim * prim_cyl = new stl_prim(prefix + "cyli", col, cw);
+			stl_prim * prim_ed1 = new stl_prim(prefix + "edge", 16);
+			stl_prim * prim_ed2 = new stl_prim(prefix + "edge", 16);
+			prim_cyl->transfo = stl_lin(std_lin, stl_lin(min_p - min_o, max_o - min_o, min_z - min_o, min_o)) * lin_dec;
+			prim_ed1->transfo = stl_lin(std_lin, stl_lin(min_p - min_o, (max_o - min_o).normaliz(), min_z - min_o, min_o)) * lin_dec;
+			prim_ed2->transfo = stl_lin(std_lin, stl_lin(max_p - max_o, (max_o - min_o).normaliz(), min_z - min_o, max_o)) * lin_dec;
+			stl.add_prim(prim_cyl);
+			stl.add_prim(prim_ed1);
+			stl.add_prim(prim_ed2);
+			prim = prim_cyl;
+			tmp_count -= dec_count;
+			dec_count_tot += dec_count;
+			lin_dec = stl_lin(stl_v(cos(dec_count_tot * pi / 8), 0.0, sin(dec_count_tot * pi / 8)),
 				stl_v(0.0, 1.0, 0.0),
 				stl_v(cos((dec_count_tot + 4) * pi / 8), 0.0, sin((dec_count_tot + 4) * pi / 8)),
 				stl_v(0.0, 0.0, 0.0));
@@ -2837,36 +2854,36 @@ void stl_cylinder::calc_prim( stl_facet * facet, stl_file & stl)
 		//cout << prim_cyl.transfo << endl;
 	}
 #ifdef DEBUG
-if (!nodebug)
-{
-	cout << "stl_cylinder::calc_prim max_o=" << max_o - min_o
-	 << " min_z=" << min_z - min_o
-	 << " min_p=" << min_p - min_o
-	 << " min_o=" << min_o
-	 << endl;
-	cout << "2 4 " << min_p << " " << min_o << endl;
-	cout << "2 2 " << max_o << " " << min_o << endl;
-	cout << "2 1 " << min_z << " " << min_o << endl;
-}
+	if (!nodebug)
+	{
+		cout << "stl_cylinder::calc_prim max_o=" << max_o - min_o
+			<< " min_z=" << min_z - min_o
+			<< " min_p=" << min_p - min_o
+			<< " min_o=" << min_o
+			<< endl;
+		cout << "2 4 " << min_p << " " << min_o << endl;
+		cout << "2 2 " << max_o << " " << min_o << endl;
+		cout << "2 1 " << min_z << " " << min_o << endl;
+	}
 #endif
 }
 
-void stl_surf::calc_curv( stl_file & stl)
+void stl_surf::calc_curv(stl_file & stl)
 {
 }
 
-void stl_cylinder::calc_curv( stl_file & stl)
+void stl_cylinder::calc_curv(stl_file & stl)
 {
 }
 
-void stl_plane::calc_curv( stl_file & stl)
+void stl_plane::calc_curv(stl_file & stl)
 {
 }
 
 void stl_file::primitives()
 {
-//	eps_empile(0.01);
-	// Bind facet together to faces
+	//	eps_empile(0.01);
+		// Bind facet together to faces
 	stl_facet_list * cur = facet_list;
 	while (cur)
 	{
@@ -2883,7 +2900,7 @@ void stl_file::primitives()
 	while (sur_ptr)
 	{
 		stl_surf * surf = sur_ptr->item;
-		surf->calc_curv( *this);
+		surf->calc_curv(*this);
 		sur_ptr = sur_ptr->next;
 	}
 	// Search circle primitives
@@ -2898,7 +2915,7 @@ void stl_file::primitives()
 			stl_facet * fct = cur->item;
 			if (fct->usage && fct->surf && !fct->surf->prim)
 			{
-				fct->surf->calc_prim( fct, *this);
+				fct->surf->calc_prim(fct, *this);
 			}
 			cur = cur->next;
 		}
@@ -2933,7 +2950,7 @@ void stl_cylinder::clean(stl_facet * fct)
 	for (int i = 0; i < fct->usage; i++)
 	{
 		if ((fct->adjacent[i] && fct->adjacent[i]->surf == fct->surf) ||
-				!fct->edge[i]->colinear(vd))
+			!fct->edge[i]->colinear(vd))
 			fct->edge[i]->printed = true;
 	}
 	fct->printed = true;
@@ -2978,7 +2995,7 @@ bool stl_edge::calc_edge()
 			if (opt5)
 			{
 				stl_v dir_e = (coord(1) - coord(2)).normaliz();
-				int side = dir_e.ps( adjacent[0]->normal + adjacent[1]->normal) > 0;
+				int side = dir_e.ps(adjacent[0]->normal + adjacent[1]->normal) > 0;
 				if (side)
 					linetype = 5;
 				else
@@ -2990,13 +3007,13 @@ bool stl_edge::calc_edge()
 			}
 		}
 	}
-	return( result);
+	return(result);
 }
 
 // Calculate edges between 2 adjacent facets
 void stl_file::calc_edge()
 {
-//	eps_empile(0.0001);
+	//	eps_empile(0.0001);
 	int nb_edge = 0;
 	stl_edge_list * cur = edge_list;
 	while (cur)
@@ -3005,7 +3022,7 @@ void stl_file::calc_edge()
 			nb_edge++;
 		cur = cur->next;
 	}
-//	eps_depile();
+	//	eps_depile();
 	if (!silent)
 		cout << nb_edge << " edges cleared" << endl;
 }
@@ -3060,9 +3077,11 @@ int iget_arg(char* argv[], int idx)
 
 int usage()
 {
-	cout << "stl2dat v1.22" << endl;
+	cout << "stl2dat v1.31" << endl;
 	cout << "Usage : stl2dat filename [] [name [author]]" << endl;
 	cout << "        -out filename : name of the output file" << endl;
+	cout << "        -scalemm : units of input file are in mm instead of ldraw units" << endl;
+	cout << "        -scale S : S is scale factor" << endl;
 	cout << "        -o X Y Z : origin point" << endl;
 	cout << "        -m X Y Z A B C D E F G H I : transformation matrix" << endl;
 	cout << "        -a angle : angle is limit for optional edges" << endl;
@@ -3099,11 +3118,11 @@ int usage()
 	cout << "        -ldr : produces a .ldr file" << endl;
 	cout << "        -nobfc : no BFC instructions" << endl;
 	cout << "        -silent : does not display informations" << endl;
+	cout << "        -verbose : display informations" << endl;
 	cout << "        -ldraw : does not add ldraw standard header" << endl;
 	cout << "        -raw : conversion without any optimisation or edge calculation" << endl;
 	cout << "        -h, --help : show this text and exit" << endl;
 	return 0;
-
 }
 
 int main(int argc, char* argv[])
@@ -3113,8 +3132,8 @@ int main(int argc, char* argv[])
 		return usage();
 	}
 #ifdef DEBUG
-if (!nodebug)
-	cout << "File:" << argv[1] << endl;
+	if (!nodebug)
+		cout << "File:" << argv[1] << endl;
 #endif
 
 	bool opt3 = false;
@@ -3125,7 +3144,7 @@ if (!nodebug)
 	bool opt_facets = true;
 
 	ag_lim = radian(22.51);
-	ag_lim_q = pi / 20;	
+	ag_lim_q = pi / 20;
 	ag_lim_t = ag_lim / 2;
 	bool b_ag_lim_t = false;
 	bool auth_done = false;
@@ -3150,7 +3169,7 @@ if (!nodebug)
 	ldr_opt = false;
 	ldr_out = false;
 	bfc = true;
-	silent = false;
+	silent = true;
 	ldraw = true;
 	stl_raw = false;
 	determinant_eps = 0.1;
@@ -3192,10 +3211,10 @@ if (!nodebug)
 			}
 			stl.origin = stl_v(c[0], c[1], c[2]);
 			stl.transf = stl_lin(
-					stl_v(1.0, 0.0, 0.0),
-					stl_v(0.0, 1.0, 0.0),
-					stl_v(0.0, 0.0, 1.0),
-					stl.origin);
+				stl_v(1.0, 0.0, 0.0),
+				stl_v(0.0, 1.0, 0.0),
+				stl_v(0.0, 0.0, 1.0),
+				stl.origin);
 		}
 		else if (attr == "-m")
 		{
@@ -3208,11 +3227,32 @@ if (!nodebug)
 					c[i] = get_arg(argv, idx);
 			}
 			stl.transf = stl_lin(
-					stl_v(c[3], c[4], c[5]),
-					stl_v(c[6], c[7], c[8]),
-					stl_v(c[9],c[10],c[11]),
-					stl_v(c[0], c[1], c[2]));
+				stl_v(c[3], c[4], c[5]),
+				stl_v(c[6], c[7], c[8]),
+				stl_v(c[9], c[10], c[11]),
+				stl_v(c[0], c[1], c[2]));
 			stl.origin = stl_v(c[0], c[1], c[2]);
+		}
+		else if (attr == "-scale")
+		{
+			double s;
+			idx++;
+			if (idx < argc)
+				s = get_arg(argv, idx);
+			stl.transf = stl_lin(
+				stl_v(s, 0.0, 0.0),
+				stl_v(0.0, s, 0.0),
+				stl_v(0.0, 0.0, s),
+				stl.origin);
+		}
+		else if (attr == "-scalemm")
+		{
+			double s = 20 / 8;	// mm to ldraw units
+			stl.transf = stl_lin(
+				stl_v(s, 0.0, 0.0),
+				stl_v(0.0, s, 0.0),
+				stl_v(0.0, 0.0, s),
+				stl.origin);
 		}
 		else if (attr == "-a")
 		{
@@ -3326,8 +3366,8 @@ if (!nodebug)
 			no_line4 = true;
 		else if (attr == "-no5")
 			no_line5 = true;
-//		else if (attr == "-o3")
-//			opt3 = false;
+		//		else if (attr == "-o3")
+		//			opt3 = false;
 		else if (attr == "-o4")
 			opt4 = false;
 		else if (attr == "-o5")
@@ -3354,6 +3394,8 @@ if (!nodebug)
 			rand_col_adj_cyl = true;
 		else if (attr == "-silent")
 			silent = true;
+		else if (attr == "-verbose")
+			silent = false;
 		else if (attr == "-ldraw")
 			ldraw = false;
 		else if (attr == "-raw")
@@ -3395,8 +3437,8 @@ if (!nodebug)
 		stl.author = argv[idx];
 
 	if (!silent)
-		cout << "stl2dat 1.22 (c) Marc Klein" << endl;
- 
+		cout << "stl2dat " << version << " (c) Marc Klein" << endl;
+
 	eps_empile(optim_eps);
 	stl.read();
 	eps_depile();
@@ -3429,9 +3471,9 @@ if (!nodebug)
 			stl.optim_facets(2);
 			stl.optim_facets(1);
 		}
-//stl.dump();
-//stl.check();
-		/**/
+		//stl.dump();
+		//stl.check();
+				/**/
 
 		if (opt4)
 			stl.optim4();
@@ -3442,8 +3484,8 @@ if (!nodebug)
 		eps_depile();
 		if (opt_edge)
 			stl.calc_edge();
-//		if (opt3)
-//			stl.optim3();
+		//		if (opt3)
+		//			stl.optim3();
 	}
 
 	stl.write_dat(print_geom);
