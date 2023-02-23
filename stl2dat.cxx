@@ -285,7 +285,6 @@ bool stl_file::read_header()
 	return(result);
 }
 
-int n = 1;
 bool stl_file::new_facet(const stl_v & normal, const stl_v vertex[])
 {
 	bool result = false;
@@ -298,14 +297,11 @@ bool stl_file::new_facet(const stl_v & normal, const stl_v vertex[])
 	{
 		//		facet->coords[i] = vertex[i] - origin;
 		facet->coords[i] = transf * vertex[i];
-		/**/
 		for (int j = 0; j < i; j++)
 			//			if ((facet->coords[i] - facet->coords[j]).norm() < 0.001)
 			if (facet->coords[i] == facet->coords[j])
 				identical = true;
-		/**/
 	}
-	//cout << "coords " << n << ":" << facet->coords[0] << " ; " << facet->coords[1] << " ; " << facet->coords[2] << endl; n++;
 	if (!identical)
 	{
 		facet->calculate_normal();
@@ -346,7 +342,7 @@ int stl_file::read_facet_text()
 	//	 0 : ok
 	//	-1 : error 'facet' or 'endsolid' expected
 	//	-2 : bad token found
-	//   1 : end of solid
+	//	 1 : end of solid
 	stl_v normal;
 	stl_v vertex[3];
 
