@@ -733,7 +733,7 @@ bool stl_facet::recalculate_precision()
 	bool result = false;
 	if (usage == 4 && !no_line4)
 	{
-		// On force la pr?cision max pour tous les vertex
+		// On force la précision max pour tous les vertex
 		for (int i = 0; i < 4; i++)
 			precision = max(vertex[i]->precision, precision);
 		for (int i = 0; i < 4; i++)
@@ -1408,7 +1408,7 @@ bool stl_facet::is_convex(bool trace)
 	double maxag;
 	calcul_angles(totag, minag, maxag);
 	if (trace)
-		cout << "(" << nbr_facet << ") tot=" << degre(totag) << "� min=" << degre(minag) << "� max=" << degre(maxag) << "�" << endl;
+		cout << "(" << nbr_facet << ") tot=" << degre(totag) << "° min=" << degre(minag) << "° max=" << degre(maxag) << "°" << endl;
 	if (equal(totag, 4 * pi))
 	{
 		stl_v tmp = coords[0];
@@ -1417,7 +1417,7 @@ bool stl_facet::is_convex(bool trace)
 		coords[2] = tmp;
 		calcul_angles(totag, minag, maxag);
 		if (trace)
-			cout << "(" << nbr_facet << ") tot=" << degre(totag) << "� min=" << degre(minag) << "� max=" << degre(maxag) << "�" << endl;
+			cout << "(" << nbr_facet << ") tot=" << degre(totag) << "° min=" << degre(minag) << "° max=" << degre(maxag) << "°" << endl;
 	}
 	result = (equal(totag, 2 * pi) && maxag < pi - ag_lim_q) || (equal(totag, 6 * pi) && minag > pi + ag_lim_q);
 	return(result);
@@ -1784,7 +1784,7 @@ void stl_vertex::scan_edges()
 				ag_min = ag;
 				ed_found = ed;
 			}
-			cout << "  fct(" << ed->ident() << ") ag=" << degre(ag) << "?" << " ag_min=" << degre(ag_min) << "?" << endl;
+			cout << "  fct(" << ed->ident() << ") ag=" << degre(ag) << "°" << " ag_min=" << degre(ag_min) << "°" << endl;
 		}
 		cur = cur->next;
 	}
@@ -1815,7 +1815,7 @@ void stl_vertex::scan_edges()
 			ln_min = ln;
 			ed_found = ed;
 		}
-		//cout << "  fct(" << ed->ident() << ") ln=" << ln << "?" << " ln_min=" << ln_min << "?" << endl;
+		//cout << "  fct(" << ed->ident() << ") ln=" << ln << "°" << " ln_min=" << ln_min << "°" << endl;
 		cur = cur->next;
 	}
 //	if (ed_found && ln_min < 1 && ln_min > 0.01)
@@ -1845,7 +1845,7 @@ if (ed->adjacent[1]) nbr_f = ed->adjacent[1]->nbr_facet;
 		{
 			ed_found = ed;
 		}
-		//cout << "  fct(" << ed->ident() << ") ln=" << ln << "?" << " ln_min=" << ln_min << "?" << endl;
+		//cout << "  fct(" << ed->ident() << ") ln=" << ln << "°" << " ln_min=" << ln_min << "°" << endl;
 		cur = cur->next;
 	}
 	if (ed_found)
@@ -2248,7 +2248,7 @@ stl_cylinder * stl_facet::new_cylinder(stl_facet * fct2, const stl_v & op, const
 		double ag = normal.angle(fct2->normal, v_ref);
 #ifdef DEBUG
 		if (!nodebug)
-			cout << "angle(" << nbr_facet << "," << fct2->nbr_facet << ") = " << degre(ag) << "�" << endl;
+			cout << "angle(" << nbr_facet << "," << fct2->nbr_facet << ") = " << degre(ag) << "°" << endl;
 #endif
 		if (equal(ag, angle_cyl))
 		{
