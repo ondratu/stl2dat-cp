@@ -2,7 +2,7 @@
 // 13/04/2019	1.30	Adaptation to visual studio 2015. -scale, -scalemm, -verbose added. -silent by default.
 // 11/07/2011	1.22	Remove trace in nodebug mode.
 // 03/05/2011	1.21	Correct bug that stopped reading of file when very small facet was encounterd.
-// 03/05/2011	1.20	Add option -oeps used for remove unusefull facets, Debug : Use smaller eps when reading the facets
+// 03/05/2011	1.20	Add option -oeps used for remove unuseful facets, Debug : Use smaller eps when reading the facets
 // 31/01/2011	1.19	Add option -raw (conversion without any optimisation or edge calculation)
 // 19/01/2011	1.18	Add option -out (output file name)
 // 18/01/2011	1.17	Correct bug of Author and partname was wrong when -o option is present
@@ -14,8 +14,8 @@
 // 18/07/2002	1.01	Add options -no1 to -no5 to exclude line type
 // 14/08/2001	b10	Use two or three cylinders primitives when the plain primitive does not exist (use new 1-16cyli and 1-16edge)
 // 12/11/2000	b9	Improve detection of cylinders by checking the height 
-// 01/09/2000	b8	Improve detection of unusefull edges by counting the different normal of faces surrounding the edge
-// 02/05/2000	b7	Remove unusefull edges (experiment), transformation matrix
+// 01/09/2000	b8	Improve detection of unuseful edges by counting the different normal of faces surrounding the edge
+// 02/05/2000	b7	Remove unuseful edges (experiment), transformation matrix
 // 13/03/2000	b6	Reads binary stl files. Set origin
 // 13/03/2000	b5	Detects cylinder primitives by basing only on angle between facet
 // 18/02/2000	b4	Scan edges at begining, topologic structure (adjency)
@@ -1943,7 +1943,7 @@ void stl_vertex::scan_edges(int nb_face)
 }
 
 
-// scan all vertices, if it is unusefull, then remove it.
+// scan all vertices, if it is unuseful, then remove it.
 void stl_file::optim_facets(int nb_face)
 {
 	//check();
@@ -1977,7 +1977,7 @@ void stl_file::optim_facets(int nb_face)
 		cur = cur->next;
 	}
 	if (!silent)
-		cout << opt_v << " unusefull vertices removed" << endl;
+		cout << opt_v << " unuseful vertices removed" << endl;
 	eps_depile();
 #ifdef _DEBUG
 	if (!nodebug)
@@ -3082,16 +3082,16 @@ int usage()
 	cout << "        -m X Y Z A B C D E F G H I : transformation matrix" << endl;
 	cout << "        -a angle : angle is limit for optional edges" << endl;
 	cout << "        -aq angle : angle is limit for quadrangles" << endl;
-	cout << "        -at angle : angle is limit for remove unusefull facets" << endl;
+	cout << "        -at angle : angle is limit for remove unuseful facets" << endl;
 	cout << "        -eps value" << endl;
 	cout << "        -teps value : minimum distance for coincidence" << endl;
 	cout << "        -deps value : maximum determinant for coplanar quads" << endl;
-	cout << "        -oeps value : epsilon used for remove unusefull facets" << endl;
+	cout << "        -oeps value : epsilon used for remove unuseful facets" << endl;
 	//		cout << "        -o3 : merge triangles" << endl;
 	cout << "        -o4 : no merge to quadrangles" << endl;
 	cout << "        -o5 : remove of internal (concave) optional edges" << endl;
 	cout << "        -op : no primitives calculation" << endl;
-	cout << "        -of : no remove of unusefull facets" << endl;
+	cout << "        -of : no remove of unuseful facets" << endl;
 	cout << "        -pp : print geometric surfaces" << endl;
 	cout << "        -cn : detect cylinder with normal difference" << endl;
 	cout << "        -oe : no creation of edges" << endl;
