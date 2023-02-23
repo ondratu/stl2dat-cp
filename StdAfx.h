@@ -2,6 +2,10 @@
 //  or project specific include files that are used frequently, but
 //      are changed infrequently
 //
+#ifdef WINVER
+#undef WINVER
+#endif
+#define WINVER 0x0600
 
 #if !defined(AFX_STDAFX_H__CD6A7C2E_D008_11D3_B3AD_0000E814D5B3__INCLUDED_)
 #define AFX_STDAFX_H__CD6A7C2E_D008_11D3_B3AD_0000E814D5B3__INCLUDED_

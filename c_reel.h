@@ -166,7 +166,7 @@ int_auto DLL_EXPORT double Mfround(
  ! Use:		Round the real on the given precision.
  */
 ;
-int_auto DLL_EXPORT long round( 
+int_auto DLL_EXPORT long l_round( 
 	const	double r 
 	) 
 /*-

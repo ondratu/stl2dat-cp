@@ -374,7 +374,7 @@ int_auto DLL_EXPORT double Mfround(
     return (r - remainder(r,y));
 }
 
-int_auto DLL_EXPORT long round( 
+int_auto DLL_EXPORT long l_round( 
 	const	double r 
 	) 
 /*-
