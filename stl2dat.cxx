@@ -1,5 +1,5 @@
 // 06/07/2019	1.31	Correct file reading problems.
-// 13/04/2019	1.30	Adaptation to visual studio 2015. -scale, -scalemm, -berbose added. -silent by default.
+// 13/04/2019	1.30	Adaptation to visual studio 2015. -scale, -scalemm, -verbose added. -silent by default.
 // 11/07/2011	1.22	Remove trace in nodebug mode.
 // 03/05/2011	1.21	Correct bug that stopped reading of file when very small facet was encounterd.
 // 03/05/2011	1.20	Add option -oeps used for remove unusefull facets, Debug : Use smaller eps when reading the facets
@@ -3117,8 +3117,8 @@ int usage()
 	cout << "        -dat : produces a .dat file" << endl;
 	cout << "        -ldr : produces a .ldr file" << endl;
 	cout << "        -nobfc : no BFC instructions" << endl;
-	cout << "        -silent : does not display informations" << endl;
-	cout << "        -verbose : display informations" << endl;
+	cout << "        -silent : does not display information (DEFAULT)" << endl;
+	cout << "        -verbose : display information" << endl;
 	cout << "        -ldraw : does not add ldraw standard header" << endl;
 	cout << "        -raw : conversion without any optimisation or edge calculation" << endl;
 	cout << "        -h, --help : show this text and exit" << endl;
