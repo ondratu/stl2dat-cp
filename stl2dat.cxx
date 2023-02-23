@@ -1040,7 +1040,7 @@ void stl_file::write_dat(bool print_geom)
 	if (bfc)
 		fout << "0 BFC CERTIFY CCW" << endl;
 	fout << endl;
-	fout << "0 // Created with stl2dat conversion tool" << endl;
+	fout << "0 // Created with stl2dat conversion tool v" << version << endl;
 	stl_prim_list * curp = prim_list;
 	int prim_cpt = 0;
 	while (curp)
@@ -3077,7 +3077,7 @@ int iget_arg(char* argv[], int idx)
 
 int usage()
 {
-	cout << "stl2dat v1.31" << endl;
+	cout << "stl2dat v" << version << endl;
 	cout << "Usage : stl2dat filename [] [name [author]]" << endl;
 	cout << "        -out filename : name of the output file" << endl;
 	cout << "        -scalemm : units of input file are in mm instead of ldraw units" << endl;
@@ -3437,7 +3437,7 @@ int main(int argc, char* argv[])
 		stl.author = argv[idx];
 
 	if (!silent)
-		cout << "stl2dat " << version << " (c) Marc Klein" << endl;
+		cout << "stl2dat v" << version << " (c) Marc Klein" << endl;
 
 	eps_empile(optim_eps);
 	stl.read();
