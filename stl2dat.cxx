@@ -1,7 +1,8 @@
+// 25/02/2023	1.32	Fix bug in -scalemm.
 // 06/07/2019	1.31	Correct file reading problems.
 // 13/04/2019	1.30	Adaptation to visual studio 2015. -scale, -scalemm, -verbose added. -silent by default.
 // 11/07/2011	1.22	Remove trace in nodebug mode.
-// 03/05/2011	1.21	Correct bug that stopped reading of file when very small facet was encounterd.
+// 03/05/2011	1.21	Correct bug that stopped reading of file when very small facet was encountered.
 // 03/05/2011	1.20	Add option -oeps used for remove unuseful facets, Debug : Use smaller eps when reading the facets
 // 31/01/2011	1.19	Add option -raw (conversion without any optimisation or edge calculation)
 // 19/01/2011	1.18	Add option -out (output file name)
@@ -48,7 +49,7 @@
 
 using namespace std;
 
-#define version "1.31"
+#define version "1.32"
 
 static double ag_lim;
 static double ag_lim_q;
