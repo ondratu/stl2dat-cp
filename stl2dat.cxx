@@ -3243,7 +3243,7 @@ int main(int argc, char* argv[])
 		}
 		else if (attr == "-scalemm")
 		{
-			double s = 20 / 8;	// mm to ldraw units
+			double s = 20.0 / 8;	// mm to ldraw units
 			stl.transf = stl_lin(
 				stl_v(s, 0.0, 0.0),
 				stl_v(0.0, s, 0.0),
