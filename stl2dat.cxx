@@ -1,3 +1,4 @@
+// 31/10/2024	1.40	Add option -swapyz (same orientation as in stl)
 // 31/10/2024	 	Fix bug in stl_edge::dump
 // 25/02/2023	1.32	Fix bug in -scalemm.
 // 06/07/2019	1.31	Correct file reading problems.
@@ -50,7 +51,7 @@
 
 using namespace std;
 
-#define version "1.32"
+#define version "1.40"
 
 static double ag_lim;
 static double ag_lim_q;
@@ -368,6 +369,7 @@ int stl_file::read_facet_text()
 	{
 		if (result) result = token("vertex");
 		if (result) is >> vertex[i];
+		if (swapyz) vertex[i].swapyz();
 	}
 	if (result) result = token("endloop");
 	if (result) result = token("endfacet");
@@ -375,13 +377,15 @@ int stl_file::read_facet_text()
 	return(result ? 0 : -1);
 }
 
-stl_v read_v(ifstream & is)
+stl_v read_v(ifstream & is, bool swapyz)
 {
 	union {
 		float f[3];
 		char buf[12];
 	} u;
 	is.read(u.buf, 12);
+	if (swapyz)
+		return(stl_v(u.f[0], u.f[2], u.f[1]));
 	return(stl_v(u.f[0], u.f[1], u.f[2]));
 }
 
@@ -391,9 +395,9 @@ bool stl_file::read_facet_bin()
 	stl_v normal;
 	stl_v vertex[3];
 
-	normal = read_v(is);
+	normal = read_v(is, swapyz);
 	for (int i = 0; i < 3; i++)
-		vertex[i] = read_v(is);
+		vertex[i] = read_v(is, swapyz);
 
 	char dummy[2];
 	is.read(dummy, 2);
@@ -3086,6 +3090,8 @@ int usage()
 	cout << "        -scale S : S is scale factor" << endl;
 	cout << "        -o X Y Z : origin point" << endl;
 	cout << "        -m X Y Z A B C D E F G H I : transformation matrix" << endl;
+	cout << "	-swapyz : swap y and z coordinates as same orientation in stl"
+		<< endl;
 	cout << "        -a angle : angle is limit for optional edges" << endl;
 	cout << "        -aq angle : angle is limit for quadrangles" << endl;
 	cout << "        -at angle : angle is limit for remove unuseful facets" << endl;
@@ -3267,6 +3273,10 @@ int main(int argc, char* argv[])
 				if (!b_ag_lim_t)
 					ag_lim_t = ag_lim / 2;
 			}
+		}
+		else if (attr == "-swapyz")
+		{
+			stl.swapyz = true;
 		}
 		else if (attr == "-aq")
 		{

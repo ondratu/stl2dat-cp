@@ -458,7 +458,9 @@ public:
     /*-
      !  follow  methods for datas  interrogation.
      */
-    
+
+    void swapyz();
+
     void x_coord_set( 
 	const	double r 	// New X coordinate of the point/vector.
 	); 

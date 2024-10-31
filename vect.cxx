@@ -465,6 +465,11 @@ stl_v::stl_v(
     x[2] = b;
 }
 
+void stl_v::swapyz()
+{
+    std::swap(x[1], x[2]);
+}
+
 void stl_v::x_coord_set( 
 	const	double r 
 	) 

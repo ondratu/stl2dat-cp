@@ -332,6 +332,7 @@ public:
 	int ok;
 	stl_v origin;
 	stl_lin transf;
+	bool swapyz = false;
 	int nbr_facet;
 private:
 	stl_facet_list * facet_list;
