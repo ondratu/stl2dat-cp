@@ -1,3 +1,4 @@
+// 31/10/2024	 	Fix bug in stl_edge::dump
 // 25/02/2023	1.32	Fix bug in -scalemm.
 // 06/07/2019	1.31	Correct file reading problems.
 // 13/04/2019	1.30	Adaptation to visual studio 2015. -scale, -scalemm, -verbose added. -silent by default.
@@ -871,8 +872,12 @@ void stl_facet::dump()
 		else
 			cout << ". ";
 	cout << "  \t[ ";
-	for (int i = 0; i < usage; i++)
+	for (int i = 0; i < usage; i++){
+            if (edge[i])
 		cout << edge[i]->nbr_edge << " ";
+            else
+                cout << "NULL ";
+        }
 	cout << "]\t";
 	for (int i = 0; i < usage; i++)
 		cout << "<" << coords[i] << "> ";
