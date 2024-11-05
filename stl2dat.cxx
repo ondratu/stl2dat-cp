@@ -1,3 +1,4 @@
+// 05/11/2024	1.41	Fix bool default value
 // 31/10/2024	1.40	Add option -swapyz (same orientation as in stl)
 // 31/10/2024	 	Fix bug in stl_edge::dump
 // 25/02/2023	1.32	Fix bug in -scalemm.
@@ -51,7 +52,7 @@
 
 using namespace std;
 
-#define version "1.40"
+#define version "1.41"
 
 static double ag_lim;
 static double ag_lim_q;

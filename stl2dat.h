@@ -37,7 +37,7 @@ public:
 	stl_lin transfo;
 	std::string name;
 	int color;
-	bool cw;	// for bfc
+	bool cw = false;	// for bfc
 
 	stl_prim() {};
 	stl_prim(int col)
@@ -77,7 +77,7 @@ class stl_surf
 public:
 	int count;
 	stl_prim * prim;
-	bool adj_cyl;
+	bool adj_cyl = false;
 
 	stl_surf();
 	virtual surf_type type() { return(t_surf); };
@@ -98,7 +98,7 @@ public:
 	double radius;
 	double height;
 	stl_v normal;
-	bool cw;	// for bfc
+	bool cw = false;	// for bfc
 
 	stl_cylinder( const stl_v & od, const stl_v & vd, double radius, double height);
 	virtual surf_type type() { return(t_cylinder); };
@@ -183,7 +183,7 @@ class stl_curv
 public:
 	int count;
 	stl_prim * prim;
-	bool adj_cyl;
+	bool adj_cyl = false;
 
 	stl_curv();
 
@@ -214,7 +214,7 @@ public:
 	stl_facet * adjacent[4];	// the facet adjacent on edge[n]
 	stl_vertex * vertex[4];		// the vertices
 	stl_surf * surf;			// primitive surface
-	bool printed;
+	bool printed = false;
 	double m_surface;
 	int precision;
 
@@ -264,8 +264,8 @@ public:
 	int linetype;				// ldraw line type 2 or 5
 	int coords[2];				// number of vertex in facet adjacent[i]
 	stl_vertex * vertex[2];		// the vertices
-	bool printed;
-	bool deleted;
+	bool printed = false;
+	bool deleted = false;
 	int color;
 	int nbr_edge;
 
@@ -296,8 +296,8 @@ class stl_vertex
 public:
 	stl_v coords;
 	stl_edge_list * edge_list;
-	bool deleted;
-	bool to_remove;
+	bool deleted = false;
+	bool to_remove = false;
 	int precision;
 	stl_edge * edge_to_remove;
 
@@ -344,7 +344,7 @@ private:
 	stl_prim_list * last_prim;
 	stl_surf_list * surf_list;
 	stl_curv_list * curv_list;
-	bool stl_bin;
+	bool stl_bin = false;
 
 public:
 	stl_file(const char * filename);
